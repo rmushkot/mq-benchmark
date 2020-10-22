@@ -12,7 +12,7 @@ type operation string
 type daemon string
 
 const (
-	minNumMessages             = 100
+	minNumMessages             = 10
 	minMessageSize             = 9
 	start            operation = "start"
 	stop             operation = "stop"
@@ -139,21 +139,23 @@ func NewClient(b *Benchmark) (*Client, error) {
 		return nil, err
 	}
 
-	d := net.Dialer{Timeout: time.Duration(b.DaemonTimeout) * time.Second}
+	// d := net.Dialer{Timeout: time.Duration(b.DaemonTimeout) * time.Second}
 
-	brokerd, err := d.Dial("tcp", b.BrokerdHost)
-	if err != nil {
-		return nil, err
-	}
+	// brokerd, err := d.Dial("tcp", b.BrokerdHost)
+	var brokerd net.Conn
+	// if err != nil {
+	// 	return nil, err
+	// }
 
 	peerd := make(map[string]net.Conn, len(b.PeerHosts))
 	for _, peer := range b.PeerHosts {
-		nd := net.Dialer{Timeout: time.Duration(b.DaemonTimeout) * time.Second}
+		// nd := net.Dialer{Timeout: time.Duration(b.DaemonTimeout) * time.Second}
 
-		s, err := nd.Dial("tcp", peer)
-		if err != nil {
-			return nil, err
-		}
+		// s, err := nd.Dial("tcp", peer)
+		var s net.Conn
+		// if err != nil {
+		// 	return nil, err
+		// }
 		peerd[peer] = s
 	}
 
@@ -178,8 +180,6 @@ func (c *Client) Start() ([]*ResultContainer, error) {
 	if err := c.startPublishers(); err != nil {
 		return nil, fmt.Errorf("Failed to start producers: %s", err.Error())
 	}
-
-	time.Sleep(time.Duration(c.Benchmark.StartupSleep) * time.Second)
 
 	fmt.Println("Preparing consumers")
 	if err := c.startSubscribers(); err != nil {
@@ -335,16 +335,20 @@ func (c *Client) stopBroker() error {
 
 func sendRequest(s net.Conn, request request) (*response, error) {
 
+	s, err := net.Dial("tcp", "localhost:8000")
+	if err != nil {
+		return nil, err
+	}
+	defer s.Close()
 	encoder := json.NewEncoder(s)
+	decoder := json.NewDecoder(s)
+
 	if err := encoder.Encode(request); err != nil {
 		fmt.Println(err)
 	}
-	fmt.Print("\nMessage SENT: ", request, "\n")
 
 	var resp response
-	decoder := json.NewDecoder(s)
 	decoder.Decode(&resp)
-	fmt.Print("\nMessage: ", resp, "\n")
 	return &resp, nil
 }
 
