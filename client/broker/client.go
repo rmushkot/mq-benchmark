@@ -33,6 +33,7 @@ type request struct {
 	MessageSize uint64    `json:"message_size"`
 	Count       uint      `json:"count"`
 	Host        string    `json:"host"`
+	HostPort    string    `json:"hostport"`
 }
 
 type response struct {
@@ -138,24 +139,11 @@ func NewClient(b *Benchmark) (*Client, error) {
 	if err := b.validate(); err != nil {
 		return nil, err
 	}
-
-	// d := net.Dialer{Timeout: time.Duration(b.DaemonTimeout) * time.Second}
-
-	// brokerd, err := d.Dial("tcp", b.BrokerdHost)
 	var brokerd net.Conn
-	// if err != nil {
-	// 	return nil, err
-	// }
 
 	peerd := make(map[string]net.Conn, len(b.PeerHosts))
 	for _, peer := range b.PeerHosts {
-		// nd := net.Dialer{Timeout: time.Duration(b.DaemonTimeout) * time.Second}
-
-		// s, err := nd.Dial("tcp", peer)
 		var s net.Conn
-		// if err != nil {
-		// 	return nil, err
-		// }
 		peerd[peer] = s
 	}
 
@@ -200,7 +188,7 @@ func (c *Client) startBroker() error {
 		Broker:    c.Benchmark.BrokerName,
 		Host:      c.Benchmark.BrokerHost,
 		Port:      c.Benchmark.BrokerPort,
-	})
+		HostPort:  c.Benchmark.BrokerdHost})
 
 	if err != nil {
 		return err
@@ -222,7 +210,7 @@ func (c *Client) startSubscribers() error {
 			Count:       c.Benchmark.Subscribers,
 			NumMessages: c.Benchmark.NumMessages,
 			MessageSize: c.Benchmark.MessageSize,
-		})
+			HostPort:    c.Benchmark.BrokerdHost})
 
 		if err != nil {
 			return err
@@ -244,7 +232,7 @@ func (c *Client) startPublishers() error {
 			Count:       c.Benchmark.Publishers,
 			NumMessages: c.Benchmark.NumMessages,
 			MessageSize: c.Benchmark.MessageSize,
-		})
+			HostPort:    c.Benchmark.BrokerdHost})
 
 		if err != nil {
 			return err
@@ -259,7 +247,9 @@ func (c *Client) startPublishers() error {
 
 func (c *Client) runBenchmark() error {
 	for _, peerd := range c.peerd {
-		resp, err := sendRequest(peerd, request{Operation: run})
+		resp, err := sendRequest(peerd, request{
+			Operation: run,
+			HostPort:  c.Benchmark.BrokerdHost})
 		if err != nil {
 			return err
 		}
@@ -308,7 +298,7 @@ func (c *Client) collectResults() <-chan []*ResultContainer {
 func (c *Client) Teardown() {
 	fmt.Println("Tearing down peers")
 	for _, peerd := range c.peerd {
-		_, err := sendRequest(peerd, request{Operation: teardown})
+		_, err := sendRequest(peerd, request{Operation: teardown, HostPort: c.Benchmark.BrokerdHost})
 		if err != nil {
 			fmt.Printf("Failed to teardown peer: %s\n", err.Error())
 		}
@@ -321,7 +311,9 @@ func (c *Client) Teardown() {
 }
 
 func (c *Client) stopBroker() error {
-	resp, err := sendRequest(c.brokerd, request{Operation: stop})
+	resp, err := sendRequest(c.brokerd, request{
+		Operation: stop,
+		HostPort:  c.Benchmark.BrokerdHost})
 	if err != nil {
 		return err
 	}
@@ -335,16 +327,18 @@ func (c *Client) stopBroker() error {
 
 func sendRequest(s net.Conn, request request) (*response, error) {
 
-	s, err := net.Dial("tcp", "localhost:8000")
+	s, err := net.Dial("tcp", request.HostPort)
 	if err != nil {
 		return nil, err
 	}
+
 	defer s.Close()
 	encoder := json.NewEncoder(s)
 	decoder := json.NewDecoder(s)
 
 	if err := encoder.Encode(request); err != nil {
 		fmt.Println(err)
+		return nil, err
 	}
 
 	var resp response
@@ -354,7 +348,7 @@ func sendRequest(s net.Conn, request request) (*response, error) {
 
 func collectResultsFromPeer(host string, peerd net.Conn, subResults chan *ResultContainer) {
 	for {
-		resp, err := sendRequest(peerd, request{Operation: results})
+		resp, err := sendRequest(peerd, request{Operation: results, HostPort: host})
 		if err != nil {
 			fmt.Println("Failed to collect results from peer:", err.Error())
 			close(subResults)
