@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"log"
 	"net"
 	"time"
 )
@@ -180,6 +179,8 @@ func (c *Client) Start() ([]*ResultContainer, error) {
 		return nil, fmt.Errorf("Failed to start producers: %s", err.Error())
 	}
 
+	time.Sleep(time.Duration(c.Benchmark.StartupSleep) * time.Second)
+
 	fmt.Println("Preparing consumers")
 	if err := c.startSubscribers(); err != nil {
 		return nil, fmt.Errorf("Failed to start consumers %s:", err.Error())
@@ -333,29 +334,17 @@ func (c *Client) stopBroker() error {
 }
 
 func sendRequest(s net.Conn, request request) (*response, error) {
-	requestJSON, err := json.Marshal(&request)
-	if err != nil {
-		// This is not recoverable.
-		panic(err)
-	}
-	log.Println(requestJSON)
-	if _, err := s.Write(requestJSON); err != nil {
-		return nil, err
-	}
 
-	var rep []byte
-	_, err = s.Read(rep)
-	if err != nil {
-		return nil, err
+	encoder := json.NewEncoder(s)
+	if err := encoder.Encode(request); err != nil {
+		fmt.Println(err)
 	}
+	fmt.Print("\nMessage SENT: ", request, "\n")
 
 	var resp response
-	log.Println(resp)
-	if err := json.Unmarshal(rep, &resp); err != nil {
-		log.Print("HERE\n\n", err.Error())
-
-		return nil, err
-	}
+	decoder := json.NewDecoder(s)
+	decoder.Decode(&resp)
+	fmt.Print("\nMessage: ", resp, "\n")
 	return &resp, nil
 }
 

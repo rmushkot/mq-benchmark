@@ -125,6 +125,7 @@ func NewDaemon() (*Daemon, error) {
 // call.
 func (d *Daemon) Start(port int) error {
 	ln, err := net.Listen("tcp", ":"+strconv.Itoa(port))
+	// defer ln.Close()
 	if err != nil {
 		return err
 	}
@@ -134,46 +135,54 @@ func (d *Daemon) Start(port int) error {
 
 func (d *Daemon) loop() error {
 	for {
+		fmt.Println("Waiting...")
 		c, err := d.lis.Accept()
 		if err != nil {
-			return err
+			fmt.Println(err)
+			continue
+			// return err
 		}
+		defer c.Close()
 		d.con = c
 
-		var msg []byte
-		_, err = c.Read(msg)
-		if err != nil {
-			log.Println(err)
-			continue
-		}
-
-		log.Println(msg)
+		log.Println("HERE")
 		var req request
-		if err := json.Unmarshal(msg, &req); err != nil {
-			log.Println("Invalid peer request:", err)
-
-			d.sendResponse(response{
-				Success: false,
-				Message: fmt.Sprintf("Invalid request: %s", err.Error()),
-			})
-			continue
+		decoder := json.NewDecoder(c)
+		if err := decoder.Decode(&req); err != nil {
+			fmt.Println(err)
+			return err
 		}
+		fmt.Print("\nMessage: ", req, "\n")
+
+		// if err := json.Unmarshal(msg, &req); err != nil {
+		// 	log.Println("Invalid peer request:", err)
+
+		// 	d.sendResponse(response{
+		// 		Success: false,
+		// 		Message: fmt.Sprintf("Invalid request: %s", err.Error()),
+		// 	})
+		// 	continue
+		// }
 
 		resp := d.processRequest(req)
 		d.sendResponse(resp)
+		fmt.Println("Finished")
 	}
 }
 
 func (d *Daemon) sendResponse(rep response) {
-	repJSON, err := json.Marshal(rep)
-	if err != nil {
-		// This is not recoverable.
-		panic(err)
-	}
+	// repJSON, err := json.Marshal(rep)
+	// if err != nil {
+	// 	// This is not recoverable.
+	// 	panic(err)
+	// }
 
-	if _, err := d.con.Write(repJSON); err != nil {
-		log.Println(err)
-	}
+	// if _, err := d.con.Write(repJSON); err != nil {
+	// 	log.Println(err)
+	// }
+
+	encoder := json.NewEncoder(d.con)
+	encoder.Encode(rep)
 }
 
 func (d *Daemon) processRequest(req request) response {
