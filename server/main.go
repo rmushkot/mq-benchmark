@@ -8,7 +8,7 @@ import (
 	"./daemon"
 )
 
-const defaultPort = 8000
+const defaultPort = 9000
 
 func main() {
 	var port = flag.Int("port", defaultPort, "daemon port")

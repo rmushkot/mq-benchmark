@@ -1,0 +1,6 @@
+Starting broker - if the image hasn't been pulled yet, this may take a while...
+Preparing producers
+Tearing down peers
+Stopping broker
+Failed to stop broker: 
+Failed to start producers: kafka: client has run out of available brokers to talk to (Is your cluster reachable?)

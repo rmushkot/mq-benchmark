@@ -1,0 +1,37 @@
+Starting broker - if the image hasn't been pulled yet, this may take a while...
+Preparing producers
+Preparing consumers
+Running benchmark
+Tearing down peers
+Stopping broker
+
+TEST SUMMARY
+
+Time Elapsed:       38.153514335s
+Broker:             activemq (localhost:5000)
+Nodes:              [localhost:9000]
+Producers per node: 3
+Consumers per node: 3
+Messages produced:  1500
+Messages consumed:  1500
+Bytes per message:  1000
+Data produced (KB): 1500
+Data consumed (KB): 1500
+
++----------+----------------+-------+----------+----------------------+
+| PRODUCER |      NODE      | ERROR | DURATION | THROUGHPUT (MSG/SEC) |
++----------+----------------+-------+----------+----------------------+
+| 1        | localhost:9000 | false | 3.746    | 133475.703           |
+| 2        | localhost:9000 | false | 3.915    | 127713.922           |
+| 3        | localhost:9000 | false | 3.537    | 141362.734           |
+| AVG      |                |       | 3.733    | 134184.125           |
++----------+----------------+-------+----------+----------------------+
++----------+----------------+-------+----------+----------------------+---------+---------+---------+---------+---------+---------+---------+---------+
+| CONSUMER |      NODE      | ERROR | DURATION | THROUGHPUT (MSG/SEC) |   MIN   |   Q1    |   Q2    |   Q3    |   MAX   |  MEAN   |   IQR   | STD DEV |
++----------+----------------+-------+----------+----------------------+---------+---------+---------+---------+---------+---------+---------+---------+
+| 1        | localhost:9000 | false | 385.332  | 1297.582             | 105     | 242     | 329     | 399     | 487     | 316.432 | 157     | 93.837  |
+| 2        | localhost:9000 | false | 373.632  | 1338.215             | 105     | 249     | 332     | 393     | 475     | 315.304 | 144     | 91.806  |
+| 3        | localhost:9000 | false | 392.702  | 1273.230             | 106     | 237     | 333     | 409     | 495     | 320.756 | 172     | 98.858  |
+| AVG      |                |       | 383.889  | 1303.009             | 105.000 | 242.000 | 331.000 | 400.000 | 485.000 | 317.497 | 157.000 | 94.834  |
++----------+----------------+-------+----------+----------------------+---------+---------+---------+---------+---------+---------+---------+---------+
+All units ms unless noted otherwise

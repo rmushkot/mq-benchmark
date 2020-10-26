@@ -1,0 +1,5 @@
+Starting broker - if the image hasn't been pulled yet, this may take a while...
+Tearing down peers
+Stopping broker
+Failed to stop broker: No broker running
+Failed to start broker: Invalid broker kestrel

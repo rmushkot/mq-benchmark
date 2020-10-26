@@ -1,0 +1,37 @@
+Starting broker - if the image hasn't been pulled yet, this may take a while...
+Preparing producers
+Preparing consumers
+Running benchmark
+Tearing down peers
+Stopping broker
+
+TEST SUMMARY
+
+Time Elapsed:       20.51152027s
+Broker:             rabbitmq (localhost:5000)
+Nodes:              [localhost:9000]
+Producers per node: 3
+Consumers per node: 3
+Messages produced:  1500
+Messages consumed:  1500
+Bytes per message:  1000
+Data produced (KB): 1500
+Data consumed (KB): 1500
+
++----------+----------------+-------+----------+----------------------+
+| PRODUCER |      NODE      | ERROR | DURATION | THROUGHPUT (MSG/SEC) |
++----------+----------------+-------+----------+----------------------+
+| 1        | localhost:9000 | false | 12.450   | 40160.645            |
+| 2        | localhost:9000 | false | 13.754   | 36353.062            |
+| 3        | localhost:9000 | false | 12.597   | 39691.988            |
+| AVG      |                |       | 12.934   | 38735.230            |
++----------+----------------+-------+----------+----------------------+
++----------+----------------+-------+----------+----------------------+-------+--------+--------+--------+--------+--------+--------+---------+
+| CONSUMER |      NODE      | ERROR | DURATION | THROUGHPUT (MSG/SEC) |  MIN  |   Q1   |   Q2   |   Q3   |  MAX   |  MEAN  |  IQR   | STD DEV |
++----------+----------------+-------+----------+----------------------+-------+--------+--------+--------+--------+--------+--------+---------+
+| 1        | localhost:9000 | false | 44.636   | 11201.720            | 8     | 26     | 33     | 41     | 47     | 32.266 | 15     | 10.636  |
+| 2        | localhost:9000 | false | 50.612   | 9879.080             | 8     | 24     | 32     | 45     | 53     | 33.384 | 21     | 11.628  |
+| 3        | localhost:9000 | false | 56.667   | 8823.478             | 8     | 21     | 33     | 45     | 59     | 34.098 | 24     | 14.668  |
+| AVG      |                |       | 50.638   | 9968.093             | 8.000 | 23.000 | 32.000 | 43.000 | 53.000 | 33.249 | 20.000 | 12.311  |
++----------+----------------+-------+----------+----------------------+-------+--------+--------+--------+--------+--------+--------+---------+
+All units ms unless noted otherwise
