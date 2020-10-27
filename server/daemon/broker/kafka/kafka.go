@@ -3,7 +3,6 @@ package kafka
 import (
 	"context"
 	"strings"
-	"time"
 
 	kafkaP "github.com/segmentio/kafka-go"
 )
@@ -12,8 +11,8 @@ const topic = "test"
 
 // Peer implements the peer interface for Kafka.
 type Peer struct {
-	producer *kafkaP.Conn
-	consumer *kafkaP.Conn
+	producer *kafkaP.Writer
+	consumer *kafkaP.Reader
 	send     chan []byte
 	errors   chan error
 	done     chan bool
@@ -57,34 +56,34 @@ type Peer struct {
 // NewPeer creates and returns a new Peer for communicating with Kafka.
 func NewPeer(host string) (*Peer, error) {
 	host = strings.Split(host, ":")[0] + ":9092" //localhost:5000 into 9092
+	producer := kafkaP.NewWriter(kafkaP.WriterConfig{
+		Brokers: []string{host},
+		Topic:   topic,
+		// Balancer: &kafkaP.LeastBytes{},
+	})
 
-	// producer := kafkaP.NewWriter(kafkaP.WriterConfig{
-	// 	Brokers:  []string{host},
-	// 	Topic:    topic,
-	// 	Balancer: &kafkaP.LeastBytes{},
-	// })
+	consumer := kafkaP.NewReader(kafkaP.ReaderConfig{
+		Brokers:   []string{host},
+		Topic:     topic,
+		Partition: 0,
+		MinBytes:  0,
+		MaxBytes:  10e9,
+	})
+	// prod, err := kafkaP.DialLeader(context.Background(), "tcp", host, topic, 0)
+	// if err != nil {
+	// 	return nil, err
+	// }
+	// prod.SetWriteDeadline(time.Now().Add(10 * time.Second))
 
-	// consumer := kafkaP.NewReader(kafkaP.ReaderConfig{
-	// 	Brokers:   []string{host},
-	// 	Topic:     topic,
-	// 	Partition: 0,
-	// 	MinBytes:  10e1,
-	// })
-	prod, err := kafkaP.DialLeader(context.Background(), "tcp", host, topic, 0)
-	if err != nil {
-		return nil, err
-	}
-	prod.SetWriteDeadline(time.Now().Add(10 * time.Second))
-
-	conn, err := kafkaP.DialLeader(context.Background(), "tcp", host, topic, 0)
-	if err != nil {
-		return nil, err
-	}
-	conn.SetReadDeadline(time.Now().Add(10 * time.Second))
+	// conn, err := kafkaP.DialLeader(context.Background(), "tcp", host, topic, 0)
+	// if err != nil {
+	// 	return nil, err
+	// }
+	// conn.SetReadDeadline(time.Now().Add(10 * time.Second))
 
 	return &Peer{
-		producer: prod,
-		consumer: conn,
+		producer: producer,
+		consumer: consumer,
 		send:     make(chan []byte),
 		errors:   make(chan error, 1),
 		done:     make(chan bool),
@@ -99,21 +98,18 @@ func (k *Peer) Subscribe() error {
 // Recv returns a single message consumed by the peer. Subscribe must be called
 // before this. It returns an error if the receive failed.
 func (k *Peer) Recv() ([]byte, error) {
-	// msg, err := k.consumer.ReadMessage(context.Background())
+	msg, err := k.consumer.ReadMessage(context.Background())
+	if err != nil {
+		return nil, err
+	}
+	return msg.Value, nil
+	// batch := k.consumer.ReadBatch(0, 10e6) // fetch 10KB min, 1MB max
+	// b := make([]byte, 10e6)
+	// _, err := batch.Read(b)
 	// if err != nil {
 	// 	return nil, err
 	// }
-	// return msg.Value, nil
-	batch := k.consumer.ReadBatch(10, 1e6) // fetch 10KB min, 1MB max
-	var err error
-	b := make([]byte, 10e3)
-	for {
-		_, err := batch.Read(b)
-		if err != nil {
-			break
-		}
-	}
-	return b, err
+	// return b, err
 }
 
 // Send returns a channel on which messages can be sent for publishing.
@@ -148,12 +144,12 @@ func (k *Peer) Setup() {
 }
 
 func (k *Peer) sendMessage(message []byte) error {
-	_, err := k.producer.WriteMessages(
+	err := k.producer.WriteMessages(context.Background(),
 		kafkaP.Message{
 			Value: message,
 		})
 	if err != nil {
-		return nil
+		return err
 	}
 	return nil
 
@@ -163,7 +159,8 @@ func (k *Peer) sendMessage(message []byte) error {
 // test is complete.
 func (k *Peer) Teardown() {
 	k.producer.Close()
-	if k.consumer != nil {
-		k.consumer.Close()
-	}
+	// if k.consumer != nil {
+	// 	k.consumer.Close()
+	// }
+	k.consumer.Close()
 }

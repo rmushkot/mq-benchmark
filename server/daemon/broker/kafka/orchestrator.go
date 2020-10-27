@@ -1,25 +1,24 @@
 package kafka
 
-import (
-	"fmt"
-	"log"
-	"os/exec"
-	"time"
-)
-
 const (
-	zookeeper     = "wurstmeister/zookeeper"
-	zookeeperCmd  = "docker run -d -p %s:%s %s"
+	zookeeper = "bitnami/zookeeper"
+	// zookeeperCmd  = "docker run -d -p %s:%s -e ALLOW_ANONYMOUS_LOGIN=yes %s"
+	zookeeperCmd = `docker run -d --name zookeeper-server \
+							-p 127.0.0.1:2181:2181 \
+							--network app-tier \
+							-e ALLOW_ANONYMOUS_LOGIN=yes \
+							bitnami/zookeeper:latest`
 	zookeeperPort = "2181"
-	kafka         = "wurstmeister/kafka"
+	kafka         = "bitnami/kafka"
 	kafkaPort     = "9092"
 	jmxPort       = "7203"
 	// TODO: Use --link.
-	kafkaCmd = `docker run -d \
-	                     -h %s \
-	                     -p %s:%s -p %s:%s \
-	                     -e EXPOSED_HOST=%s \
-						 -e ZOOKEEPER_IP=%s %s`
+	kafkaCmd = `docker run -d --name kafka-server \
+					-p 127.0.0.1:9092:9092 \
+					--network app-tier \
+					-e ALLOW_PLAINTEXT_LISTENER=yes \
+					-e KAFKA_CFG_ZOOKEEPER_CONNECT=zookeeper-server:2181 \
+					bitnami/kafka:latest`
 )
 
 // Broker implements the broker interface for Kafka.
@@ -30,55 +29,61 @@ type Broker struct {
 
 // Start will start the message broker and prepare it for testing.
 func (k *Broker) Start(host, port string) (interface{}, error) {
-	fmt.Println(host, ":", port)
-	if port == zookeeperPort || port == jmxPort {
-		return nil, fmt.Errorf("Port %s is reserved", port)
-	}
+	// fmt.Println(host, ":", port)
+	// if port == zookeeperPort || port == jmxPort {
+	// 	return nil, fmt.Errorf("Port %s is reserved", port)
+	// }
 
-	cmd := fmt.Sprintf(zookeeperCmd, zookeeperPort, zookeeperPort, zookeeper)
-	zkContainerID, err := exec.Command("/bin/sh", "-c", cmd).Output()
-	if err != nil {
-		log.Printf("Failed to start container %s: %s", zookeeper, err.Error())
-		return "", err
-	}
-	log.Printf("Started container %s: %s", zookeeper, zkContainerID)
+	// // cmd := fmt.Sprintf(zookeeperCmd, zookeeperPort, zookeeperPort, zookeeper)
+	// cmd := fmt.Sprintf(zookeeperCmd)
+	// zkContainerID, err := exec.Command("/bin/sh", "-c", cmd).Output()
+	// if err != nil {
+	// 	log.Printf("Failed to start container %s: %s", zookeeper, err.Error())
+	// 	return "", err
+	// }
+	// log.Printf("Started container %s: %s", zookeeper, zkContainerID)
 
-	cmd = fmt.Sprintf(kafkaCmd, host, kafkaPort, kafkaPort, jmxPort, jmxPort, host, host, kafka)
-	kafkaContainerID, err := exec.Command("/bin/sh", "-c", cmd).Output()
-	if err != nil {
-		log.Printf("Failed to start container %s: %s", kafka, err.Error())
-		k.Stop()
-		return "", err
-	}
+	// time.Sleep(20 * time.Second)
+	// // cmd = fmt.Sprintf(kafkaCmd, host, kafkaPort, kafkaPort, jmxPort, jmxPort, host, host, kafka)
+	// cmd = fmt.Sprintf(kafkaCmd)
+	// kafkaContainerID, err := exec.Command("/bin/sh", "-c", cmd).Output()
+	// if err != nil {
+	// 	log.Printf("Failed to start container %s: %s", kafka, err.Error())
+	// 	k.Stop()
+	// 	return "", err
+	// }
 
-	log.Printf("Started container %s: %s", kafka, kafkaContainerID)
+	// log.Printf("Started container %s: %s", kafka, kafkaContainerID)
+	// k.kafkaContainerID = string(kafkaContainerID)
+	// k.zookeeperContainerID = string(zkContainerID)
+
+	// // NOTE: Leader election can take a while. For now, just sleep to try to
+	// // ensure the cluster is ready. Is there a way to avoid this or make it
+	// // better?
+	// time.Sleep(time.Minute)
+	kafkaContainerID := "123456"
+
 	k.kafkaContainerID = string(kafkaContainerID)
-	k.zookeeperContainerID = string(zkContainerID)
-
-	// NOTE: Leader election can take a while. For now, just sleep to try to
-	// ensure the cluster is ready. Is there a way to avoid this or make it
-	// better?
-	time.Sleep(time.Minute)
-
+	k.zookeeperContainerID = string(kafkaContainerID)
 	return string(kafkaContainerID), nil
 }
 
 // Stop will stop the message broker.
 func (k *Broker) Stop() (interface{}, error) {
-	_, err := exec.Command("/bin/sh", "-c", fmt.Sprintf("docker kill %s", k.zookeeperContainerID)).Output()
-	if err != nil {
-		log.Printf("Failed to stop container %s: %s", zookeeper, err.Error())
-	} else {
-		log.Printf("Stopped container %s: %s", zookeeper, k.zookeeperContainerID)
-	}
+	// _, err := exec.Command("/bin/sh", "-c", fmt.Sprintf("docker kill %s", k.zookeeperContainerID)).Output()
+	// if err != nil {
+	// 	log.Printf("Failed to stop container %s: %s", zookeeper, err.Error())
+	// } else {
+	// 	log.Printf("Stopped container %s: %s", zookeeper, k.zookeeperContainerID)
+	// }
 
-	kafkaContainerID, e := exec.Command("/bin/sh", "-c", fmt.Sprintf("docker kill %s", k.kafkaContainerID)).Output()
-	if e != nil {
-		log.Printf("Failed to stop container %s: %s", kafka, err.Error())
-		err = e
-	} else {
-		log.Printf("Stopped container %s: %s", kafka, k.kafkaContainerID)
-	}
-
-	return string(kafkaContainerID), err
+	// kafkaContainerID, e := exec.Command("/bin/sh", "-c", fmt.Sprintf("docker kill %s", k.kafkaContainerID)).Output()
+	// if e != nil {
+	// 	log.Printf("Failed to stop container %s: %s", kafka, err.Error())
+	// 	err = e
+	// } else {
+	// 	log.Printf("Stopped container %s: %s", kafka, k.kafkaContainerID)
+	// }
+	kafkaContainerID := "123456"
+	return string(kafkaContainerID), nil
 }
