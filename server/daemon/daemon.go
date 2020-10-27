@@ -9,12 +9,11 @@ import (
 	"strconv"
 
 	"./broker/amqp/rabbitmq"
-
+	"./broker/kafka"
 	"./broker/nsq"
 	"github.com/tylertreat/Flotilla/flotilla-server/daemon/broker/activemq"
 	"github.com/tylertreat/Flotilla/flotilla-server/daemon/broker/amqp"
 	"github.com/tylertreat/Flotilla/flotilla-server/daemon/broker/beanstalkd"
-	"github.com/tylertreat/Flotilla/flotilla-server/daemon/broker/kafka"
 	"github.com/tylertreat/Flotilla/flotilla-server/daemon/broker/nats"
 )
 

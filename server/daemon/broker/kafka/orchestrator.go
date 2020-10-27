@@ -8,7 +8,7 @@ import (
 )
 
 const (
-	zookeeper     = "zookeeper"
+	zookeeper     = "wurstmeister/zookeeper"
 	zookeeperCmd  = "docker run -d -p %s:%s %s"
 	zookeeperPort = "2181"
 	kafka         = "wurstmeister/kafka"
@@ -30,6 +30,7 @@ type Broker struct {
 
 // Start will start the message broker and prepare it for testing.
 func (k *Broker) Start(host, port string) (interface{}, error) {
+	fmt.Println(host, ":", port)
 	if port == zookeeperPort || port == jmxPort {
 		return nil, fmt.Errorf("Port %s is reserved", port)
 	}

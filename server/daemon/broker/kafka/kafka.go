@@ -1,51 +1,90 @@
 package kafka
 
 import (
+	"context"
 	"strings"
+	"time"
 
-	"github.com/Shopify/sarama"
+	kafkaP "github.com/segmentio/kafka-go"
 )
 
 const topic = "test"
 
 // Peer implements the peer interface for Kafka.
 type Peer struct {
-	client   sarama.Client
-	producer sarama.AsyncProducer
-	consumer sarama.PartitionConsumer
+	producer *kafkaP.Conn
+	consumer *kafkaP.Conn
 	send     chan []byte
 	errors   chan error
 	done     chan bool
 }
 
+// // NewPeer creates and returns a new Peer for communicating with Kafka.
+// func NewPeer(host string) (*Peer, error) {
+// 	host = strings.Split(host, ":")[0] + ":9092" //localhost:5000 into 9092
+// 	config := sarama.NewConfig()
+// 	fmt.Println(host)
+// 	client, err := sarama.NewClient([]string{host}, config)
+// 	if err != nil {
+// 		return nil, err
+// 	}
+
+// 	producer, err := sarama.NewAsyncProducer([]string{host}, config)
+// 	if err != nil {
+// 		return nil, err
+// 	}
+
+// 	consumer, err := sarama.NewConsumer([]string{host}, config)
+// 	if err != nil {
+// 		return nil, err
+// 	}
+
+// 	partitionConsumer, err := consumer.ConsumePartition(topic, 0, sarama.OffsetNewest)
+// 	if err != nil {
+// 		return nil, err
+// 	}
+
+// 	return &Peer{
+// 		client:   client,
+// 		producer: producer,
+// 		consumer: partitionConsumer,
+// 		send:     make(chan []byte),
+// 		errors:   make(chan error, 1),
+// 		done:     make(chan bool),
+// 	}, nil
+// }
+
 // NewPeer creates and returns a new Peer for communicating with Kafka.
 func NewPeer(host string) (*Peer, error) {
-	host = strings.Split(host, ":")[0] + ":9092"
-	config := sarama.NewConfig()
-	client, err := sarama.NewClient([]string{host}, config)
-	if err != nil {
-		return nil, err
-	}
+	host = strings.Split(host, ":")[0] + ":9092" //localhost:5000 into 9092
 
-	producer, err := sarama.NewAsyncProducer([]string{host}, config)
-	if err != nil {
-		return nil, err
-	}
+	// producer := kafkaP.NewWriter(kafkaP.WriterConfig{
+	// 	Brokers:  []string{host},
+	// 	Topic:    topic,
+	// 	Balancer: &kafkaP.LeastBytes{},
+	// })
 
-	consumer, err := sarama.NewConsumer([]string{host}, config)
+	// consumer := kafkaP.NewReader(kafkaP.ReaderConfig{
+	// 	Brokers:   []string{host},
+	// 	Topic:     topic,
+	// 	Partition: 0,
+	// 	MinBytes:  10e1,
+	// })
+	prod, err := kafkaP.DialLeader(context.Background(), "tcp", host, topic, 0)
 	if err != nil {
 		return nil, err
 	}
+	prod.SetWriteDeadline(time.Now().Add(10 * time.Second))
 
-	partitionConsumer, err := consumer.ConsumePartition(topic, 0, sarama.OffsetNewest)
+	conn, err := kafkaP.DialLeader(context.Background(), "tcp", host, topic, 0)
 	if err != nil {
 		return nil, err
 	}
+	conn.SetReadDeadline(time.Now().Add(10 * time.Second))
 
 	return &Peer{
-		client:   client,
-		producer: producer,
-		consumer: partitionConsumer,
+		producer: prod,
+		consumer: conn,
 		send:     make(chan []byte),
 		errors:   make(chan error, 1),
 		done:     make(chan bool),
@@ -60,8 +99,21 @@ func (k *Peer) Subscribe() error {
 // Recv returns a single message consumed by the peer. Subscribe must be called
 // before this. It returns an error if the receive failed.
 func (k *Peer) Recv() ([]byte, error) {
-	msg := <-k.consumer.Messages()
-	return msg.Value, nil
+	// msg, err := k.consumer.ReadMessage(context.Background())
+	// if err != nil {
+	// 	return nil, err
+	// }
+	// return msg.Value, nil
+	batch := k.consumer.ReadBatch(10, 1e6) // fetch 10KB min, 1MB max
+	var err error
+	b := make([]byte, 10e3)
+	for {
+		_, err := batch.Read(b)
+		if err != nil {
+			break
+		}
+	}
+	return b, err
 }
 
 // Send returns a channel on which messages can be sent for publishing.
@@ -96,12 +148,15 @@ func (k *Peer) Setup() {
 }
 
 func (k *Peer) sendMessage(message []byte) error {
-	select {
-	case k.producer.Input() <- &sarama.ProducerMessage{Topic: topic, Key: nil, Value: sarama.ByteEncoder(message)}:
+	_, err := k.producer.WriteMessages(
+		kafkaP.Message{
+			Value: message,
+		})
+	if err != nil {
 		return nil
-	case err := <-k.producer.Errors():
-		return err.Err
 	}
+	return nil
+
 }
 
 // Teardown performs any cleanup logic that needs to be performed after the
@@ -111,5 +166,4 @@ func (k *Peer) Teardown() {
 	if k.consumer != nil {
 		k.consumer.Close()
 	}
-	k.client.Close()
 }
