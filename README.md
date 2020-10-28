@@ -20,8 +20,8 @@ Flotilla supports several message brokers out of the box:
 
 - [Beanstalkd](http://kr.github.io/beanstalkd/)
 - [NATS](http://nats.io/)
-- [Kafka](http://kafka.apache.org/)
-- [Kestrel](http://twitter.github.io/kestrel/) **work in progress**
+- [Kafka](http://kafka.apache.org/) **- See caveats below - **
+- [Kestrel](http://twitter.github.io/kestrel/) **- Work in progress - **
 - [ActiveMQ](http://activemq.apache.org/)
 - [RabbitMQ](http://www.rabbitmq.com/)
 - [NSQ](http://nsq.io/)
