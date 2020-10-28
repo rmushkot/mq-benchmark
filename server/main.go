@@ -8,7 +8,7 @@ import (
 	"./daemon"
 )
 
-const defaultPort = 9000
+const defaultPort = 9500
 
 func main() {
 	var port = flag.Int("port", defaultPort, "daemon port")
@@ -21,7 +21,7 @@ func main() {
 		panic(err)
 	}
 
-	fmt.Printf("Flotilla daemon started on port %d...\n", *port)
+	fmt.Printf("Benchmark daemon started on port %d...\n", *port)
 	if err := d.Start(*port); err != nil {
 		panic(err)
 	}

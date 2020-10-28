@@ -15,7 +15,7 @@ import (
 )
 
 const (
-	defaultDaemonPort    = "9000"
+	defaultDaemonPort    = "9500"
 	defaultBrokerPort    = "5000"
 	defaultNumMessages   = 500
 	defaultMessageSize   = 1000

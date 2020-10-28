@@ -20,6 +20,7 @@ const (
 					-e KAFKA_CFG_ZOOKEEPER_CONNECT=zookeeper-server:2181 \
 					bitnami/kafka:latest`
 	dockerCmd = "docker-compose up"
+	docker
 )
 
 // Broker implements the broker interface for Kafka.
