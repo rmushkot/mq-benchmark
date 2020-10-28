@@ -1,10 +1,10 @@
 # mq-benchmark
-Mq-benchmark is a tool for testing message queues in more realistic environments based on [Flotilla](https://github.com/tylertreat/mq-benchmarking) with some minor tweaks. This [blog post](http://www.bravenewgeek.com/benchmark-responsibly/) provides some more background on the methodology behind this project.
+Mq-benchmark is a tool for testing message queues in more realistic environments based on [Flotilla](https://github.com/tylertreat/flotilla) with some minor tweaks. This [blog post](http://www.bravenewgeek.com/benchmark-responsibly/) provides some more background on the methodology behind this project.
 
 Testing anything at scale can be difficult to achieve in practice. It generally takes a lot of resources and often requires ad hoc solutions. Flotilla attempts to provide automated orchestration for benchmarking message queues in scaled-up configurations. Simply put, we can benchmark a message broker with arbitrarily many producers and consumers distributed across arbitrarily many machines with a single command.
 
 ```shell
-flotilla-client \
+./client \
     --broker=kafka \
     --host=192.168.59.100:9500 \
     --peer-hosts=localhost:9500,192.168.59.101:9500,192.168.59.102:9500,192.168.59.103:9500 \
@@ -50,7 +50,7 @@ Navigate to the /server directory
 ```bash
 $ go build -o server main.go 
 $ ./server
-Flotilla daemon started on port 9000...
+Benchmark daemon started on port 9500...
 ```
 
 ### Local Configuration
@@ -63,7 +63,7 @@ $ go build -o client main.go
 $ ./client --broker=nats
 ```
 
-Flotilla will run everything on localhost.
+Mq-benchmark will run everything on localhost.
 
 ### Distributed Configuration
 
@@ -80,5 +80,5 @@ $ ./client --help
 ```
 
 ## Caveats
-- There is currently no security built in. Use this tool *at your own risk*. The daemon runs on port 9000 by default.
+- There is currently no security built in. Use this tool *at your own risk*. The daemon runs on port 9500 by default.
 
