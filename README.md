@@ -81,4 +81,4 @@ $ ./client --help
 
 ## Caveats
 - There is currently no security built in. Use this tool *at your own risk*. The daemon runs on port 9500 by default.
-
+- Currently kafka can not be orchestrated through this project, so I recommend using docker-compose from [wurstmeister/kafka-docker](https://github.com/wurstmeister/kafka-docker).
