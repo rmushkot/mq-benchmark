@@ -19,6 +19,7 @@ const (
 					-e ALLOW_PLAINTEXT_LISTENER=yes \
 					-e KAFKA_CFG_ZOOKEEPER_CONNECT=zookeeper-server:2181 \
 					bitnami/kafka:latest`
+	dockerCmd = "docker-compose up"
 )
 
 // Broker implements the broker interface for Kafka.
@@ -35,15 +36,15 @@ func (k *Broker) Start(host, port string) (interface{}, error) {
 	// }
 
 	// // cmd := fmt.Sprintf(zookeeperCmd, zookeeperPort, zookeeperPort, zookeeper)
-	// cmd := fmt.Sprintf(zookeeperCmd)
-	// zkContainerID, err := exec.Command("/bin/sh", "-c", cmd).Output()
+	// cmd := fmt.Sprintf(dockerCmd)
+	// _, err := exec.Command("/bin/sh", "-c", cmd).Output()
 	// if err != nil {
 	// 	log.Printf("Failed to start container %s: %s", zookeeper, err.Error())
 	// 	return "", err
 	// }
-	// log.Printf("Started container %s: %s", zookeeper, zkContainerID)
+	// log.Printf("Started container")
 
-	// time.Sleep(20 * time.Second)
+	// time.Sleep(time.Minute)
 	// // cmd = fmt.Sprintf(kafkaCmd, host, kafkaPort, kafkaPort, jmxPort, jmxPort, host, host, kafka)
 	// cmd = fmt.Sprintf(kafkaCmd)
 	// kafkaContainerID, err := exec.Command("/bin/sh", "-c", cmd).Output()

@@ -2,10 +2,36 @@ Starting broker - if the image hasn't been pulled yet, this may take a while...
 Preparing producers
 Preparing consumers
 Running benchmark
-Failed to collect results from peer: dial tcp [::1]:9000: connect: connection refused
-
-Shutting down...
 Tearing down peers
-Failed to teardown peer: dial tcp [::1]:9000: connect: connection refused
 Stopping broker
-Failed to stop broker: dial tcp [::1]:9000: connect: connection refused
+
+TEST SUMMARY
+
+Time Elapsed:       9.115778933s
+Broker:             kafka (localhost:5000)
+Nodes:              [localhost:9000]
+Producers per node: 3
+Consumers per node: 3
+Messages produced:  1500
+Messages consumed:  1500
+Bytes per message:  1000
+Data produced (KB): 1500
+Data consumed (KB): 1500
+
++----------+----------------+-------+----------+----------------------+
+| PRODUCER |      NODE      | ERROR | DURATION | THROUGHPUT (MSG/SEC) |
++----------+----------------+-------+----------+----------------------+
+| 1        | localhost:9000 | false | 1.805    | 277008.312           |
+| 2        | localhost:9000 | false | 1.816    | 275330.406           |
+| 3        | localhost:9000 | false | 1.795    | 278551.531           |
+| AVG      |                |       | 1.805    | 276963.406           |
++----------+----------------+-------+----------+----------------------+
++----------+----------------+-------+----------+----------------------+--------+--------+--------+--------+--------+---------+-------+---------+
+| CONSUMER |      NODE      | ERROR | DURATION | THROUGHPUT (MSG/SEC) |  MIN   |   Q1   |   Q2   |   Q3   |  MAX   |  MEAN   |  IQR  | STD DEV |
++----------+----------------+-------+----------+----------------------+--------+--------+--------+--------+--------+---------+-------+---------+
+| 1        | localhost:9000 | false | 75.299   | 6640.194             | 11     | 85     | 85     | 85     | 85     | 84.408  | 0     | 6.592   |
+| 2        | localhost:9000 | false | 42.736   | 11699.738            | 11     | 53     | 53     | 53     | 53     | 52.664  | 0     | 3.742   |
+| 3        | localhost:9000 | false | 106.141  | 4710.715             | 13     | 117    | 117    | 117    | 117    | 116.168 | 0     | 9.265   |
+| AVG      |                |       | 74.725   | 7683.549             | 11.000 | 85.000 | 85.000 | 85.000 | 85.000 | 84.413  | 0.000 | 6.533   |
++----------+----------------+-------+----------+----------------------+--------+--------+--------+--------+--------+---------+-------+---------+
+All units ms unless noted otherwise
