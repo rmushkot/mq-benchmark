@@ -2,36 +2,7 @@ Starting broker - if the image hasn't been pulled yet, this may take a while...
 Preparing producers
 Preparing consumers
 Running benchmark
+
+Shutting down...
 Tearing down peers
 Stopping broker
-
-TEST SUMMARY
-
-Time Elapsed:       9.628201561s
-Broker:             beanstalkd (localhost:5000)
-Nodes:              [localhost:9000]
-Producers per node: 3
-Consumers per node: 3
-Messages produced:  1500
-Messages consumed:  1500
-Bytes per message:  1000
-Data produced (KB): 1500
-Data consumed (KB): 1500
-
-+----------+----------------+-------+----------+----------------------+
-| PRODUCER |      NODE      | ERROR | DURATION | THROUGHPUT (MSG/SEC) |
-+----------+----------------+-------+----------+----------------------+
-| 1        | localhost:9000 | false | 567.186  | 881.545              |
-| 2        | localhost:9000 | false | 564.910  | 885.097              |
-| 3        | localhost:9000 | false | 566.872  | 882.033              |
-| AVG      |                |       | 566.323  | 882.892              |
-+----------+----------------+-------+----------+----------------------+
-+----------+----------------+-------+----------+----------------------+-------+---------+---------+---------+---------+---------+---------+---------+
-| CONSUMER |      NODE      | ERROR | DURATION | THROUGHPUT (MSG/SEC) |  MIN  |   Q1    |   Q2    |   Q3    |   MAX   |  MEAN   |   IQR   | STD DEV |
-+----------+----------------+-------+----------+----------------------+-------+---------+---------+---------+---------+---------+---------+---------+
-| 1        | localhost:9000 | false | 983.069  | 508.611              | 3     | 110     | 227     | 322     | 419     | 219.672 | 212     | 119.076 |
-| 2        | localhost:9000 | false | 982.320  | 508.999              | 2     | 108     | 226     | 321     | 419     | 219.048 | 213     | 119.274 |
-| 3        | localhost:9000 | false | 981.392  | 509.480              | 2     | 109     | 226     | 321     | 419     | 219.178 | 212     | 119.044 |
-| AVG      |                |       | 982.260  | 509.030              | 2.000 | 109.000 | 226.000 | 321.000 | 419.000 | 219.299 | 212.000 | 119.131 |
-+----------+----------------+-------+----------+----------------------+-------+---------+---------+---------+---------+---------+---------+---------+
-All units ms unless noted otherwise
