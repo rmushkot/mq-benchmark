@@ -1,8 +1,8 @@
 package amqp
 
 import (
+	"github.com/rmushkot/mq-benchmark/server/daemon/broker"
 	"github.com/streadway/amqp"
-	"github.com/tylertreat/Flotilla/flotilla-server/daemon/broker"
 )
 
 const (
@@ -34,11 +34,11 @@ func NewPeer(host string) (*Peer, error) {
 
 	queue, err := channel.QueueDeclare(
 		broker.GenerateName(), // name
-		false, // not durable
-		false, // delete when unused
-		true,  // exclusive
-		false, // no wait
-		nil,   // arguments
+		false,                 // not durable
+		false,                 // delete when unused
+		true,                  // exclusive
+		false,                 // no wait
+		nil,                   // arguments
 	)
 	if err != nil {
 		return nil, err

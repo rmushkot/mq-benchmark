@@ -1,9 +1,8 @@
 package nsq
 
 import (
-	"github.com/tylertreat/Flotilla/flotilla-server/daemon/broker"
-
-	"github.com/bitly/go-nsq"
+	"github.com/nsqio/go-nsq"
+	"github.com/rmushkot/mq-benchmark/server/daemon/broker"
 )
 
 const (
