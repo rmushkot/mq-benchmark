@@ -17,7 +17,7 @@ const (
 	maxMsgsBehind = 65536 // 64k
 
 	// Time to delay publishing when we are behind.
-	delay = 1 * time.Millisecond
+	delay = 0 * time.Millisecond
 )
 
 // Peer implements the peer interface for NATS.
@@ -42,7 +42,7 @@ func NewPeer(host string) (*Peer, error) {
 
 	return &Peer{
 		conn:     conn,
-		messages: make(chan []byte, 10000),
+		messages: make(chan []byte, 100000),
 		send:     make(chan []byte),
 		errors:   make(chan error, 1),
 		done:     make(chan bool),

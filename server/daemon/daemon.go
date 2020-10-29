@@ -8,13 +8,13 @@ import (
 	"net"
 	"strconv"
 
+	"./broker/activemq"
+	"./broker/amqp"
 	"./broker/amqp/rabbitmq"
+	"./broker/beanstalkd"
 	"./broker/kafka"
+	"./broker/nats"
 	"./broker/nsq"
-	"github.com/tylertreat/Flotilla/flotilla-server/daemon/broker/activemq"
-	"github.com/tylertreat/Flotilla/flotilla-server/daemon/broker/amqp"
-	"github.com/tylertreat/Flotilla/flotilla-server/daemon/broker/beanstalkd"
-	"github.com/tylertreat/Flotilla/flotilla-server/daemon/broker/nats"
 )
 
 type daemon string

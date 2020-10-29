@@ -3,7 +3,7 @@ package beanstalkd
 import (
 	"time"
 
-	"github.com/kr/beanstalk"
+	"github.com/beanstalkd/go-beanstalk"
 )
 
 // Peer implements the peer interface for Beanstalkd.

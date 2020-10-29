@@ -1,6 +1,0 @@
-Starting broker - if the image hasn't been pulled yet, this may take a while...
-Tearing down peers
-Failed to teardown peer: dial tcp [::1]:9500: connect: connection refused
-Stopping broker
-Failed to stop broker: dial tcp [::1]:9500: connect: connection refused
-Failed to start broker: dial tcp [::1]:9500: connect: connection refused

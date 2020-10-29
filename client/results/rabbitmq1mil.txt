@@ -1,0 +1,33 @@
+Starting broker - if the image hasn't been pulled yet, this may take a while...
+Preparing producers
+Preparing consumers
+Running benchmark
+Tearing down peers
+Stopping broker
+
+TEST SUMMARY
+
+Time Elapsed:       1m12.388785291s
+Broker:             rabbitmq (localhost:5000)
+Nodes:              [localhost:9500]
+Producers per node: 1
+Consumers per node: 1
+Messages produced:  1000000
+Messages consumed:  1000000
+Bytes per message:  1000
+Data produced (KB): 1000000
+Data consumed (KB): 1000000
+
++----------+----------------+-------+-----------+----------------------+
+| PRODUCER |      NODE      | ERROR | DURATION  | THROUGHPUT (MSG/SEC) |
++----------+----------------+-------+-----------+----------------------+
+| 1        | localhost:9500 | false | 50439.793 | 19825.617            |
+| AVG      |                |       | 50439.793 | 19825.617            |
++----------+----------------+-------+-----------+----------------------+
++----------+----------------+-------+-----------+----------------------+-------+---------+---------+---------+----------+---------+---------+---------+
+| CONSUMER |      NODE      | ERROR | DURATION  | THROUGHPUT (MSG/SEC) |  MIN  |   Q1    |   Q2    |   Q3    |   MAX    |  MEAN   |   IQR   | STD DEV |
++----------+----------------+-------+-----------+----------------------+-------+---------+---------+---------+----------+---------+---------+---------+
+| 1        | localhost:9500 | false | 51411.930 | 19450.738            | 5     | 750     | 833     | 970     | 1236     | 850.327 | 220     | 167.071 |
+| AVG      |                |       | 51411.930 | 19450.738            | 5.000 | 750.000 | 833.000 | 970.000 | 1236.000 | 850.327 | 220.000 | 167.071 |
++----------+----------------+-------+-----------+----------------------+-------+---------+---------+---------+----------+---------+---------+---------+
+All units ms unless noted otherwise

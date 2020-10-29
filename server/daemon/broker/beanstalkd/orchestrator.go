@@ -7,7 +7,7 @@ import (
 )
 
 const (
-	beanstalkd   = "m0ikz/beanstalkd"
+	beanstalkd   = "schickling/beanstalkd"
 	internalPort = "11300"
 )
 
