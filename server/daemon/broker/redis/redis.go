@@ -3,21 +3,20 @@ package redis
 import (
 	"context"
 
-	"github.com/go-redis/redis"
+	"github.com/go-redis/redis/v8"
 )
 
 const (
 	key = "key"
-	var ctx = context.Background()
-
 )
 
 // Peer implements the peer interface for redis.
 type Peer struct {
-	conn     *redis.Client
-	send     chan []byte
-	errors   chan error
-	done     chan bool
+	conn   *redis.Client
+	ctx    context.Context
+	send   chan []byte
+	errors chan error
+	done   chan bool
 }
 
 // NewPeer creates and returns a new Peer for communicating with redis.
@@ -29,8 +28,11 @@ func NewPeer(host string) (*Peer, error) {
 		DB:       0,
 	})
 
+	ctx := context.Background()
+
 	return &Peer{
 		conn:   rdb,
+		ctx:    ctx,
 		send:   make(chan []byte),
 		errors: make(chan error, 1),
 		done:   make(chan bool),
@@ -45,8 +47,9 @@ func (n *Peer) Subscribe() error {
 // Recv returns a single message consumed by the peer. Subscribe must be called
 // before this. It returns an error if the receive failed.
 func (n *Peer) Recv() ([]byte, error) {
-	val, err := n.conn.Get(ctx, key).Result()
-	return val, err
+	val, err := n.conn.Get(n.ctx, key).Result()
+	b := []byte(val)
+	return b, err
 }
 
 // Send returns a channel on which messages can be sent for publishing.
@@ -70,10 +73,10 @@ func (n *Peer) Setup() {
 		for {
 			select {
 			case msg := <-n.send:
-				if err := n.conn.Set(ctx, key, msg, 0).Err(); err != nil {
-					a.errors <- err
+				if err := n.conn.Set(n.ctx, key, msg, 0).Err(); err != nil {
+					n.errors <- err
 				}
-			case <-a.done:
+			case <-n.done:
 				return
 			}
 		}

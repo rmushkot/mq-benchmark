@@ -8,13 +8,11 @@ require (
 	github.com/Shopify/sarama v1.27.2
 	github.com/alindeman/go-kestrel v0.0.0-20131116144519-9c3cb4ecae9b
 	github.com/beanstalkd/go-beanstalk v0.1.0
-	github.com/go-redis/redis v6.15.9+incompatible
+	github.com/go-redis/redis/v8 v8.3.3
 	github.com/nats-io/nats-server/v2 v2.1.8 // indirect
 	github.com/nats-io/nats.go v1.10.0
 	github.com/nsqio/go-nsq v1.0.8
 	github.com/olekukonko/tablewriter v0.0.4
-	github.com/onsi/ginkgo v1.14.2 // indirect
-	github.com/onsi/gomega v1.10.3 // indirect
 	github.com/streadway/amqp v1.0.0
 	gopkg.in/stomp.v1 v1.0.1
 )
