@@ -140,10 +140,17 @@ func NewClient(b *Benchmark) (*Client, error) {
 		return nil, err
 	}
 	var brokerd net.Conn
-
+	// brokerd, err := net.Dial("tcp", b.BrokerdHost)
+	// if err != nil {
+	// 	return nil, err
+	// }
 	peerd := make(map[string]net.Conn, len(b.PeerHosts))
 	for _, peer := range b.PeerHosts {
 		var s net.Conn
+		// s, err := net.Dial("tcp", peer)
+		// if err != nil {
+		// 	return nil, err
+		// }
 		peerd[peer] = s
 	}
 
@@ -203,6 +210,7 @@ func (c *Client) startBroker() error {
 
 func (c *Client) startSubscribers() error {
 	for _, peerd := range c.peerd {
+		fmt.Println("sendig request to", peerd)
 		resp, err := sendRequest(peerd, request{
 			Operation:   sub,
 			Broker:      c.Benchmark.BrokerName,
@@ -225,6 +233,7 @@ func (c *Client) startSubscribers() error {
 
 func (c *Client) startPublishers() error {
 	for _, peerd := range c.peerd {
+		fmt.Println("sendig request to", peerd)
 		resp, err := sendRequest(peerd, request{
 			Operation:   pub,
 			Broker:      c.Benchmark.BrokerName,
@@ -302,12 +311,14 @@ func (c *Client) Teardown() {
 		if err != nil {
 			fmt.Printf("Failed to teardown peer: %s\n", err.Error())
 		}
+		// peerd.Close()
 	}
 
 	fmt.Println("Stopping broker")
 	if err := c.stopBroker(); err != nil {
 		fmt.Printf("Failed to stop broker: %s\n", err.Error())
 	}
+	// c.brokerd.Close()
 }
 
 func (c *Client) stopBroker() error {
