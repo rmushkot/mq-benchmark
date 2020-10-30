@@ -1,7 +1,7 @@
 package amqp
 
 import (
-	"github.com/rmushkot/mq-benchmark/server/daemon/broker"
+	"../../broker"
 	"github.com/streadway/amqp"
 )
 

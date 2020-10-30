@@ -1,8 +1,8 @@
 package nsq
 
 import (
-	"github.com/nsqio/go-nsq"
-	"github.com/rmushkot/mq-benchmark/server/daemon/broker"
+	"../../broker"
+	"github.com/bitly/go-nsq"
 )
 
 const (

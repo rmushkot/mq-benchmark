@@ -15,7 +15,7 @@ import (
 	"./broker/kafka"
 	"./broker/nats"
 	"./broker/nsq"
-	"./broker/redis"
+	// "./broker/redis"
 	// "github.com/rmushkot/mq-benchmark/server/daemon/broker/broker/activemq"
 	// "github.com/rmushkot/mq-benchmark/server/daemon/broker/broker/amqp"
 	// "github.com/rmushkot/mq-benchmark/server/daemon/broker/broker/amqp/rabbitmq"
@@ -225,8 +225,8 @@ func (d *Daemon) processBrokerStart(broker, host, port string) (interface{}, err
 		d.broker = &rabbitmq.Broker{}
 	case NSQ:
 		d.broker = &nsq.Broker{}
-	case Redis:
-		d.broker = &nsq.Broker{}
+	// case Redis:
+	// 	d.broker = &nsq.Broker{}
 	default:
 		return "", fmt.Errorf("Invalid broker %s", broker)
 	}
@@ -349,8 +349,8 @@ func (d *Daemon) newPeer(broker, host string) (peer, error) {
 		return amqp.NewPeer(host)
 	case NSQ:
 		return nsq.NewPeer(host)
-	case Redis:
-		return redis.NewPeer(host)
+	// case Redis:
+	// 	return redis.NewPeer(host)
 	default:
 		return nil, fmt.Errorf("Invalid broker: %s", broker)
 	}
