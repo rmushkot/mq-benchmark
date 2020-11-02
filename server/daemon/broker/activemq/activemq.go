@@ -15,7 +15,7 @@ type Peer struct {
 
 // NewPeer creates and returns a new Peer for communicating with ActiveMQ.
 func NewPeer(host string) (*Peer, error) {
-	conn, err := stomp.Dial("tcp", host, stomp.Options{})
+	conn, err := stomp.Dial("tcp", "127.17.0.2:61613", stomp.Options{})
 	if err != nil {
 		return nil, err
 	}

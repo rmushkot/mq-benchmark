@@ -17,7 +17,7 @@ type Peer struct {
 
 // NewPeer creates and returns a new Peer for communicating with Beanstalkd.
 func NewPeer(host string) (*Peer, error) {
-	conn, err := beanstalk.Dial("tcp", host)
+	conn, err := beanstalk.Dial("tcp", "172.17.0.2:11300")
 	if err != nil {
 		return nil, err
 	}

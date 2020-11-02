@@ -27,7 +27,7 @@ type Peer struct {
 
 // NewPeer creates and returns a new Peer for communicating with NSQ.
 func NewPeer(host string) (*Peer, error) {
-	producer, err := nsq.NewProducer(host, nsq.NewConfig())
+	producer, err := nsq.NewProducer("127.17.0.2:4150", nsq.NewConfig())
 	if err != nil {
 		return nil, err
 	}
