@@ -190,7 +190,7 @@ func (c *Client) Start() ([]*ResultContainer, error) {
 }
 
 func (c *Client) startBroker() error {
-	resp, err := sendRequest(c.brokerd, request{
+	resp, err := sendRequest(c.Benchmark.BrokerdHost, request{
 		Operation: start,
 		Broker:    c.Benchmark.BrokerName,
 		Host:      c.Benchmark.BrokerHost,
@@ -209,7 +209,7 @@ func (c *Client) startBroker() error {
 }
 
 func (c *Client) startSubscribers() error {
-	for _, peerd := range c.peerd {
+	for _, peerd := range c.Benchmark.PeerHosts {
 		fmt.Println("sendig request to", peerd)
 		resp, err := sendRequest(peerd, request{
 			Operation:   sub,
@@ -232,7 +232,7 @@ func (c *Client) startSubscribers() error {
 }
 
 func (c *Client) startPublishers() error {
-	for _, peerd := range c.peerd {
+	for _, peerd := range c.Benchmark.PeerHosts {
 		fmt.Println("sendig request to", peerd)
 		resp, err := sendRequest(peerd, request{
 			Operation:   pub,
@@ -255,7 +255,7 @@ func (c *Client) startPublishers() error {
 }
 
 func (c *Client) runBenchmark() error {
-	for _, peerd := range c.peerd {
+	for _, peerd := range c.Benchmark.PeerHosts {
 		resp, err := sendRequest(peerd, request{
 			Operation: run,
 			HostPort:  c.Benchmark.BrokerdHost})
@@ -306,7 +306,7 @@ func (c *Client) collectResults() <-chan []*ResultContainer {
 // broker and tearing down peers.
 func (c *Client) Teardown() {
 	fmt.Println("Tearing down peers")
-	for _, peerd := range c.peerd {
+	for _, peerd := range c.Benchmark.PeerHosts {
 		_, err := sendRequest(peerd, request{Operation: teardown, HostPort: c.Benchmark.BrokerdHost})
 		if err != nil {
 			fmt.Printf("Failed to teardown peer: %s\n", err.Error())
@@ -322,7 +322,7 @@ func (c *Client) Teardown() {
 }
 
 func (c *Client) stopBroker() error {
-	resp, err := sendRequest(c.brokerd, request{
+	resp, err := sendRequest(c.Benchmark.BrokerdHost, request{
 		Operation: stop,
 		HostPort:  c.Benchmark.BrokerdHost})
 	if err != nil {
@@ -336,14 +336,14 @@ func (c *Client) stopBroker() error {
 	return nil
 }
 
-func sendRequest(s net.Conn, request request) (*response, error) {
+func sendRequest(ip string, request request) (*response, error) {
 
-	s, err := net.Dial("tcp", request.HostPort)
+	s, err := net.Dial("tcp", ip)
 	if err != nil {
 		return nil, err
 	}
-
 	defer s.Close()
+
 	encoder := json.NewEncoder(s)
 	decoder := json.NewDecoder(s)
 
@@ -359,7 +359,7 @@ func sendRequest(s net.Conn, request request) (*response, error) {
 
 func collectResultsFromPeer(host string, peerd net.Conn, subResults chan *ResultContainer) {
 	for {
-		resp, err := sendRequest(peerd, request{Operation: results, HostPort: host})
+		resp, err := sendRequest(host, request{Operation: results, HostPort: host})
 		if err != nil {
 			fmt.Println("Failed to collect results from peer:", err.Error())
 			close(subResults)
