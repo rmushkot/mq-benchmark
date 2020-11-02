@@ -19,7 +19,7 @@ type Broker struct {
 // Start will start the message broker and prepare it for testing.
 func (b *Broker) Start(host, port string) (interface{}, error) {
 	containerID, err := exec.Command("/bin/sh", "-c",
-		fmt.Sprintf("docker run -d -p %s:%s %s", port, internalPort, beanstalkd)).Output()
+		fmt.Sprintf("sudo docker run -d -p %s:%s %s", port, internalPort, beanstalkd)).Output()
 	if err != nil {
 		log.Printf("Failed to start container %s: %s", beanstalkd, err.Error())
 		return "", err
@@ -33,7 +33,7 @@ func (b *Broker) Start(host, port string) (interface{}, error) {
 // Stop will stop the message broker.
 func (b *Broker) Stop() (interface{}, error) {
 	containerID, err := exec.Command("/bin/sh", "-c",
-		fmt.Sprintf("docker kill %s", b.containerID)).Output()
+		fmt.Sprintf("sudo docker kill %s", b.containerID)).Output()
 	if err != nil {
 		log.Printf("Failed to stop container %s: %s", beanstalkd, err.Error())
 		return "", err
