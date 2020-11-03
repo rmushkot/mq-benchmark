@@ -214,7 +214,7 @@ func (c *Client) startSubscribers() error {
 		resp, err := sendRequest(peerd, request{
 			Operation:   sub,
 			Broker:      c.Benchmark.BrokerName,
-			Host:        fmt.Sprintf("%s:%s", c.Benchmark.BrokerHost, c.Benchmark.BrokerPort),
+			Host:        c.Benchmark.BrokerdHost,
 			Count:       c.Benchmark.Subscribers,
 			NumMessages: c.Benchmark.NumMessages,
 			MessageSize: c.Benchmark.MessageSize,
@@ -233,11 +233,11 @@ func (c *Client) startSubscribers() error {
 
 func (c *Client) startPublishers() error {
 	for _, peerd := range c.Benchmark.PeerHosts {
-		fmt.Println("sendig request to", peerd)
+		fmt.Println("Sending request to", peerd)
 		resp, err := sendRequest(peerd, request{
 			Operation:   pub,
 			Broker:      c.Benchmark.BrokerName,
-			Host:        fmt.Sprintf("%s:%s", c.Benchmark.BrokerHost, c.Benchmark.BrokerPort),
+			Host:        c.Benchmark.BrokerdHost,
 			Count:       c.Benchmark.Publishers,
 			NumMessages: c.Benchmark.NumMessages,
 			MessageSize: c.Benchmark.MessageSize,

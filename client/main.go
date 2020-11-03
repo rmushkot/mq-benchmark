@@ -56,7 +56,7 @@ func main() {
 	peers := strings.Split(*peerHosts, ",")
 
 	client, err := broker.NewClient(&broker.Benchmark{
-		BrokerdHost:   *brokerdHost,
+		BrokerdHost:   strings.Split(*brokerdHost, ":")[0],
 		BrokerName:    *brokerName,
 		BrokerHost:    *dockerHost,
 		BrokerPort:    *brokerPort,

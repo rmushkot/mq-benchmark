@@ -31,7 +31,7 @@ type Peer struct {
 
 // NewPeer creates and returns a new Peer for communicating with NATS.
 func NewPeer(host string) (*Peer, error) {
-	conn, err := nats.Connect(fmt.Sprintf("nats://172.17.0.2:4222"))
+	conn, err := nats.Connect(fmt.Sprintf("nats://%s:4222", host)) // This needs to be the address of the host that has the docker container running ie "nats://13.58.149.44:4222"
 	if err != nil {
 		return nil, err
 	}
