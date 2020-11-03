@@ -19,7 +19,7 @@ type Broker struct {
 // Start will start the message broker and prepare it for testing.
 func (n *Broker) Start(host, port string) (interface{}, error) {
 	containerID, err := exec.Command("/bin/sh", "-c",
-		fmt.Sprintf("sudo docker run -d -p %s:%s %s", port, internalPort, gnatsd)).Output()
+		fmt.Sprintf("sudo docker run -d -p %s:%s %s", internalPort, internalPort, gnatsd)).Output()
 	if err != nil {
 		log.Printf("Failed to start container %s: %s", gnatsd, err.Error())
 		return "", err
