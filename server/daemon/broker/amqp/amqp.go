@@ -1,6 +1,8 @@
 package amqp
 
 import (
+	"fmt"
+
 	"../../broker"
 	"github.com/streadway/amqp"
 )
@@ -22,7 +24,7 @@ type Peer struct {
 
 // NewPeer creates and returns a new Peer for communicating with AMQP brokers.
 func NewPeer(host string) (*Peer, error) {
-	conn, err := amqp.Dial("amqp://127.17.0.2:5672")
+	conn, err := amqp.Dial(fmt.Sprintf("amqp://%s:5672", host))
 	if err != nil {
 		return nil, err
 	}

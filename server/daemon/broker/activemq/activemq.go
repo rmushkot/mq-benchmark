@@ -1,6 +1,10 @@
 package activemq
 
-import "gopkg.in/stomp.v1"
+import (
+	"fmt"
+
+	"gopkg.in/stomp.v1"
+)
 
 const queue = "test"
 
@@ -15,7 +19,7 @@ type Peer struct {
 
 // NewPeer creates and returns a new Peer for communicating with ActiveMQ.
 func NewPeer(host string) (*Peer, error) {
-	conn, err := stomp.Dial("tcp", "127.17.0.2:61613", stomp.Options{})
+	conn, err := stomp.Dial("tcp", fmt.Sprintf("%s:61613", host), stomp.Options{})
 	if err != nil {
 		return nil, err
 	}
