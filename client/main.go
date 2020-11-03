@@ -40,8 +40,6 @@ var brokers = []string{
 func main() {
 	var (
 		brokerName    = flag.String("broker", brokers[1], brokerList())
-		brokerPort    = flag.String("broker-port", defaultBrokerPort, "host machine broker port")
-		dockerHost    = flag.String("docker-host", defaultHost, "host machine (or VM) running Docker")
 		brokerdHost   = flag.String("host", defaultDaemonHost, "machine running broker daemon")
 		peerHosts     = flag.String("peer-hosts", defaultDaemonHost, "comma-separated list of machines to run peers")
 		producers     = flag.Uint("producers", defaultNumProducers, "number of producers per host")
@@ -56,10 +54,10 @@ func main() {
 	peers := strings.Split(*peerHosts, ",")
 
 	client, err := broker.NewClient(&broker.Benchmark{
-		BrokerdHost:   strings.Split(*brokerdHost, ":")[0],
+		BrokerdHost:   *brokerdHost, // where you connect to
 		BrokerName:    *brokerName,
-		BrokerHost:    *dockerHost,
-		BrokerPort:    *brokerPort,
+		BrokerHost:    strings.Split(*brokerdHost, ":")[0], //IP of host where you connect
+		BrokerPort:    strings.Split(*brokerdHost, ":")[1], // Port of host where you connect
 		PeerHosts:     peers,
 		NumMessages:   *numMessages,
 		MessageSize:   *messageSize,

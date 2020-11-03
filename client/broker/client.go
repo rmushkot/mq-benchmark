@@ -214,7 +214,7 @@ func (c *Client) startSubscribers() error {
 		resp, err := sendRequest(peerd, request{
 			Operation:   sub,
 			Broker:      c.Benchmark.BrokerName,
-			Host:        c.Benchmark.BrokerdHost,
+			Host:        c.Benchmark.BrokerHost,
 			Count:       c.Benchmark.Subscribers,
 			NumMessages: c.Benchmark.NumMessages,
 			MessageSize: c.Benchmark.MessageSize,
@@ -237,7 +237,7 @@ func (c *Client) startPublishers() error {
 		resp, err := sendRequest(peerd, request{
 			Operation:   pub,
 			Broker:      c.Benchmark.BrokerName,
-			Host:        c.Benchmark.BrokerdHost,
+			Host:        c.Benchmark.BrokerHost,
 			Count:       c.Benchmark.Publishers,
 			NumMessages: c.Benchmark.NumMessages,
 			MessageSize: c.Benchmark.MessageSize,
