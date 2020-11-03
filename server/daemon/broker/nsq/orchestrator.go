@@ -41,7 +41,7 @@ func (n *Broker) Start(host, port string) (interface{}, error) {
 	}
 	log.Printf("Started container %s: %s", nsqlookupd, nsqlookupdContainerID)
 
-	cmd = fmt.Sprintf(nsqdCmd, port, internalPort, nsqdPort, nsqdPort, nsqd, host,
+	cmd = fmt.Sprintf(nsqdCmd, internalPort, internalPort, nsqdPort, nsqdPort, nsqd, host,
 		host, nsqlookupdPort1)
 	nsqdContainerID, err := exec.Command("/bin/sh", "-c", cmd).Output()
 	if err != nil {
