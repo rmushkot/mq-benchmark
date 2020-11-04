@@ -1,0 +1,11 @@
+Starting broker - if the image hasn't been pulled yet, this may take a while...
+Preparing producers
+Sending request to 3.139.56.41:9500
+Sending request to 3.138.173.159:9500
+Sending request to 3.12.132.220:9500
+Preparing consumers
+sendig request to 3.139.56.41:9500
+Tearing down peers
+Stopping broker
+Failed to stop broker: exit status 1
+Failed to start consumers dial tcp: address 3.139.56.41: missing port in address:
