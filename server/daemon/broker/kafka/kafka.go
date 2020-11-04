@@ -2,12 +2,11 @@ package kafka
 
 import (
 	"fmt"
-	"strings"
 
 	"github.com/Shopify/sarama"
 )
 
-const topic = "newTopic"
+const topic = "myTopic"
 
 // Peer implements the peer interface for Kafka.
 type Peer struct {
@@ -21,7 +20,7 @@ type Peer struct {
 
 // NewPeer creates and returns a new Peer for communicating with Kafka.
 func NewPeer(host string) (*Peer, error) {
-	host = strings.Split(host, ":")[0] + ":9092" //localhost:5000 into 9092
+	host = host + ":9092" //localhost:5000 into 9092
 	config := sarama.NewConfig()
 	fmt.Println(host)
 	client, err := sarama.NewClient([]string{host}, config)
