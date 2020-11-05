@@ -7,3 +7,8 @@ Running benchmark
 
 Shutting down...
 Tearing down peers
+Stopping broker
+Failed to collect results from peer: Tearing down peers
+Failed to teardown peer: dial tcp 3.139.74.211:9500: connect: operation timed out
+Stopping broker
+Failed to stop broker: dial tcp 3.139.84.107:9500: connect: operation timed out

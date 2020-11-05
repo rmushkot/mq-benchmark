@@ -14,6 +14,7 @@ import (
 	"./broker/beanstalkd"
 	"./broker/kafka"
 	"./broker/nats"
+	"./broker/natsstreaming"
 	"./broker/nsq"
 	// "./broker/redis"
 	// "github.com/rmushkot/mq-benchmark/server/daemon/broker/broker/activemq"
@@ -41,14 +42,15 @@ const (
 
 // These are supported message brokers.
 const (
-	NATS       = "nats"
-	Beanstalkd = "beanstalkd"
-	Kafka      = "kafka"
-	Kestrel    = "kestrel"
-	ActiveMQ   = "activemq"
-	RabbitMQ   = "rabbitmq"
-	NSQ        = "nsq"
-	Redis      = "redis"
+	NATS          = "nats"
+	Beanstalkd    = "beanstalkd"
+	Kafka         = "kafka"
+	Kestrel       = "kestrel"
+	ActiveMQ      = "activemq"
+	RabbitMQ      = "rabbitmq"
+	NSQ           = "nsq"
+	Redis         = "redis"
+	NATSStreaming = "natsstreaming"
 )
 
 type request struct {
@@ -225,6 +227,8 @@ func (d *Daemon) processBrokerStart(broker, host, port string) (interface{}, err
 		d.broker = &rabbitmq.Broker{}
 	case NSQ:
 		d.broker = &nsq.Broker{}
+	case NATSStreaming:
+		d.broker = &natsstreaming.Broker{}
 	// case Redis:
 	// 	d.broker = &nsq.Broker{}
 	default:
@@ -349,6 +353,8 @@ func (d *Daemon) newPeer(broker, host string) (peer, error) {
 		return amqp.NewPeer(host)
 	case NSQ:
 		return nsq.NewPeer(host)
+	case NATSStreaming:
+		return natsstreaming.NewPeer(host)
 	// case Redis:
 	// 	return redis.NewPeer(host)
 	default:
