@@ -12,7 +12,7 @@ const (
 
 	// bufferSize is the number of messages we try to publish at a time to
 	// increase throughput. TODO: this might need tweaking.
-	bufferSize = 50
+	bufferSize = 500
 )
 
 // Peer implements the peer interface for NSQ.
@@ -35,7 +35,7 @@ func NewPeer(host string) (*Peer, error) {
 	}
 
 	return &Peer{
-		host:     host,
+		host:     fmt.Sprintf("%s:4150", host),
 		producer: producer,
 		messages: make(chan []byte, 10000),
 		send:     make(chan []byte),
