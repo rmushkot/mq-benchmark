@@ -3,7 +3,6 @@ package pulsar
 import (
 	"context"
 	"fmt"
-	"time"
 
 	"github.com/apache/pulsar-client-go/pulsar"
 )
@@ -26,9 +25,7 @@ type Peer struct {
 // NewPeer creates and returns a new Peer for communicating with pulsar.
 func NewPeer(host string) (*Peer, error) {
 	conn, err := pulsar.NewClient(pulsar.ClientOptions{
-		URL:               fmt.Sprintf("pulsar://%s:6650", host),
-		OperationTimeout:  30 * time.Second,
-		ConnectionTimeout: 30 * time.Second,
+		URL: fmt.Sprintf("pulsar://%s:6650", host),
 	})
 	if err != nil {
 		return nil, err
@@ -55,7 +52,9 @@ func NewPeer(host string) (*Peer, error) {
 // Subscribe prepares the peer to consume messages.
 func (n *Peer) Subscribe() error {
 	consumer, err := n.conn.Subscribe(pulsar.ConsumerOptions{
-		Topic: topic,
+		Topic:            topic,
+		SubscriptionName: "my-sub",
+		Type:             pulsar.Shared,
 	})
 	n.consumer = consumer
 	return err

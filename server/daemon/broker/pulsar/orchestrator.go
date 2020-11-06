@@ -9,10 +9,9 @@ import (
 const (
 	pulsard       = "apachepulsar/pulsar"
 	internalPort  = "6650"
-	dataPath      = "../../../../results/data/pulsar"
+	dataPath      = "/mq-benchmark/results/data/pulsar"
 	pulsarCommand = `docker run -d \
 						-p %s:%s \
-						-p 8080:8080 \
 						-v %s \
 						%s \
 						bin/pulsar standalone`
