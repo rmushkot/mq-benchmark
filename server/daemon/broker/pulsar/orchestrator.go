@@ -10,7 +10,7 @@ const (
 	pulsard       = "apachepulsar/pulsar"
 	internalPort  = "6650"
 	dataPath      = "../../../../results/data/pulsar"
-	pulsarCommand = `docker run -it \
+	pulsarCommand = `docker run -d \
 						-p %s:%s \
 						-p 8080:8080 \
 						-v %s \
@@ -42,11 +42,11 @@ func (n *Broker) Stop() (interface{}, error) {
 	containerID, err := exec.Command("/bin/sh", "-c",
 		fmt.Sprintf("sudo docker kill %s", n.containerID)).Output()
 	if err != nil {
-		log.Printf("Failed to stop container %s: %s", gnatsd, err.Error())
+		log.Printf("Failed to stop container %s: %s", pulsard, err.Error())
 		return "", err
 	}
 
-	log.Printf("Stopped container %s: %s", gnatsd, n.containerID)
+	log.Printf("Stopped container %s: %s", pulsard, n.containerID)
 	n.containerID = ""
 	return string(containerID), nil
 }

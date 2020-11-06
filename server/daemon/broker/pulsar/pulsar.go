@@ -14,9 +14,9 @@ const (
 
 // Peer implements the peer interface for pulsar.
 type Peer struct {
-	conn     *pulsar.Conn
-	producer *pulsar.Producer
-	consumer *pulsar.Consumer
+	conn     pulsar.Client
+	producer pulsar.Producer
+	consumer pulsar.Consumer
 	messages chan []byte
 	send     chan []byte
 	errors   chan error
@@ -34,7 +34,7 @@ func NewPeer(host string) (*Peer, error) {
 		return nil, err
 	}
 
-	producer, err := client.CreateProducer(pulsar.ProducerOptions{
+	producer, err := conn.CreateProducer(pulsar.ProducerOptions{
 		Topic: topic,
 	})
 
@@ -58,12 +58,13 @@ func (n *Peer) Subscribe() error {
 		Topic: topic,
 	})
 	n.consumer = consumer
+	return err
 }
 
 // Recv returns a single message consumed by the peer. Subscribe must be called
 // before this. It returns an error if the receive failed.
 func (n *Peer) Recv() ([]byte, error) {
-	msg, err = n.consumer.Receive(context.Background())
+	msg, err := n.consumer.Receive(context.Background())
 	return msg.Payload(), err
 }
 
