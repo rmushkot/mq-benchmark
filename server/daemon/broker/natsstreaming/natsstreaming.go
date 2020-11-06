@@ -5,11 +5,14 @@ import (
 	"time"
 
 	"github.com/nats-io/nats.go"
+	"github.com/nats-io/stan.go"
+	"github.com/tylertreat/flotilla/flotilla-server/daemon/broker"
 )
 
 const (
-	subject = "test"
-
+	subject   = "test"
+	clusterID = "test-cluster"
+	clientID  = "stan-bench"
 	// Maximum bytes we will get behind before we start slowing down publishing.
 	maxBytesBehind = 1024 * 1024 // 1MB
 
@@ -23,6 +26,7 @@ const (
 // Peer implements the peer interface for NATS.
 type Peer struct {
 	conn     *nats.Conn
+	sconn    stan.Conn
 	messages chan []byte
 	send     chan []byte
 	errors   chan error
@@ -31,6 +35,7 @@ type Peer struct {
 
 // NewPeer creates and returns a new Peer for communicating with NATS.
 func NewPeer(host string) (*Peer, error) {
+	fmt.Println(host)
 	conn, err := nats.Connect(fmt.Sprintf("nats://%s:4222", host)) // This needs to be the address of the host that has the docker container running ie "nats://13.58.149.44:4222"
 	if err != nil {
 		return nil, err
@@ -39,9 +44,14 @@ func NewPeer(host string) (*Peer, error) {
 	// We want to be alerted if we get disconnected, this will be due to Slow
 	// Consumer.
 	conn.Opts.AllowReconnect = false
+	sc, err := stan.Connect(clusterID, broker.GenerateName(), stan.NatsConn(conn))
+	if err != nil {
+		return nil, err
+	}
 
 	return &Peer{
 		conn:     conn,
+		sconn:    sc,
 		messages: make(chan []byte, 100000),
 		send:     make(chan []byte),
 		errors:   make(chan error, 1),
@@ -51,7 +61,7 @@ func NewPeer(host string) (*Peer, error) {
 
 // Subscribe prepares the peer to consume messages.
 func (n *Peer) Subscribe() error {
-	n.conn.Subscribe(subject, func(message *nats.Msg) {
+	n.sconn.Subscribe(subject, func(message *stan.Msg) {
 		n.messages <- message.Data
 	})
 	return nil
@@ -96,21 +106,22 @@ func (n *Peer) Setup() {
 
 func (n *Peer) sendMessage(message []byte) error {
 	// Check if we are behind by >= 1MB bytes.
-	bytesDeltaOver := n.conn.OutBytes-n.conn.InBytes >= maxBytesBehind
+	// bytesDeltaOver := n.conn.OutBytes-n.conn.InBytes >= maxBytesBehind
 
-	// Check if we are behind by >= 65k msgs.
-	msgsDeltaOver := n.conn.OutMsgs-n.conn.InMsgs >= maxMsgsBehind
+	// // Check if we are behind by >= 65k msgs.
+	// msgsDeltaOver := n.conn.OutMsgs-n.conn.InMsgs >= maxMsgsBehind
 
-	// If we are behind on either condition, sleep a bit to catch up receiver.
-	if bytesDeltaOver || msgsDeltaOver {
-		time.Sleep(delay)
-	}
+	// // If we are behind on either condition, sleep a bit to catch up receiver.
+	// if bytesDeltaOver || msgsDeltaOver {
+	// 	time.Sleep(delay)
+	// }
 
-	return n.conn.Publish(subject, message)
+	return n.sconn.Publish(subject, message)
 }
 
 // Teardown performs any cleanup logic that needs to be performed after the
 // test is complete.
 func (n *Peer) Teardown() {
 	n.conn.Close()
+	n.sconn.Close()
 }
