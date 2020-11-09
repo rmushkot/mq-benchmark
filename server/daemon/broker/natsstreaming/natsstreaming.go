@@ -5,9 +5,9 @@ import (
 	"log"
 	"time"
 
+	"../../broker"
 	"github.com/nats-io/nats.go"
 	"github.com/nats-io/stan.go"
-	"github.com/tylertreat/flotilla/flotilla-server/daemon/broker"
 )
 
 const (
