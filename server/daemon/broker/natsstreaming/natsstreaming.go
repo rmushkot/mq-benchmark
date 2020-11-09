@@ -2,11 +2,12 @@ package natsstreaming
 
 import (
 	"fmt"
+	"log"
 	"time"
 
+	"../../broker"
 	"github.com/nats-io/nats.go"
 	"github.com/nats-io/stan.go"
-	"github.com/tylertreat/flotilla/flotilla-server/daemon/broker"
 )
 
 const (
@@ -115,8 +116,15 @@ func (n *Peer) sendMessage(message []byte) error {
 	// if bytesDeltaOver || msgsDeltaOver {
 	// 	time.Sleep(delay)
 	// }
-
-	return n.sconn.Publish(subject, message)
+	ackHandler := func(ackedNuid string, err error) {
+		if err != nil {
+			log.Printf("Warning: error publishing msg id %s: %v\n", ackedNuid, err.Error())
+		} else {
+			return
+		}
+	}
+	_, err := n.sconn.PublishAsync(subject, message, ackHandler)
+	return err
 }
 
 // Teardown performs any cleanup logic that needs to be performed after the
