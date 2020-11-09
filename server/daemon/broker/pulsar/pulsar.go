@@ -88,12 +88,14 @@ func (n *Peer) Setup() {
 		for {
 			select {
 			case msg := <-n.send:
-				_, err := n.producer.Send(context.Background(), &pulsar.ProducerMessage{
+				n.producer.SendAsync(context.Background(), &pulsar.ProducerMessage{
 					Payload: msg,
+				}, func(id pulsar.MessageID, message *pulsar.ProducerMessage, err error) {
+					if err != nil {
+						fmt.Println("Failed to publish", err)
+						n.errors <- err
+					}
 				})
-				if err != nil {
-					n.errors <- err
-				}
 			case <-n.done:
 				return
 			}
@@ -105,6 +107,10 @@ func (n *Peer) Setup() {
 // test is complete.
 func (n *Peer) Teardown() {
 	n.conn.Close()
-	n.producer.Close()
-	n.consumer.Close()
+	if n.producer != nil {
+		n.producer.Close()
+	}
+	if n.consumer != nil {
+		n.consumer.Close()
+	}
 }

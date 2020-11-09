@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"log"
 	"os/exec"
+	"time"
 )
 
 const (
@@ -33,6 +34,7 @@ func (n *Broker) Start(host, port string) (interface{}, error) {
 
 	log.Printf("Started container %s: %s", pulsard, containerID)
 	n.containerID = string(containerID)
+	time.Sleep(20 * time.Second)
 	return string(containerID), nil
 }
 
