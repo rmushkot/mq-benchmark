@@ -20,7 +20,7 @@ Flotilla supports several message brokers out of the box:
 
 - [Beanstalkd](http://kr.github.io/beanstalkd/)
 - [NATS](http://nats.io/)
-- [NATS Streaming] (https://docs.nats.io/nats-streaming-concepts/intro)
+- [NATS Streaming](https://docs.nats.io/nats-streaming-concepts/intro)
 - [Kafka](http://kafka.apache.org/) **- See caveats below -**
 - [ActiveMQ](http://activemq.apache.org/)
 - [RabbitMQ](http://www.rabbitmq.com/)
