@@ -34,7 +34,7 @@ func (n *Broker) Start(host, port string) (interface{}, error) {
 
 	log.Printf("Started container %s: %s", pulsard, containerID)
 	n.containerID = string(containerID)
-	time.Sleep(20 * time.Second)
+	time.Sleep(10 * time.Second)
 	return string(containerID), nil
 }
 

@@ -64,6 +64,7 @@ func (n *Peer) Subscribe() error {
 // before this. It returns an error if the receive failed.
 func (n *Peer) Recv() ([]byte, error) {
 	msg, err := n.consumer.Receive(context.Background())
+	n.consumer.Ack(msg)
 	return msg.Payload(), err
 }
 
