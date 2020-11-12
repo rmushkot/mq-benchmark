@@ -9,7 +9,7 @@ import (
 )
 
 var (
-	topic = "test"
+	topic = broker.GenerateName()
 )
 
 // Peer implements the peer interface for pulsar.
@@ -31,7 +31,6 @@ func NewPeer(host string) (*Peer, error) {
 	if err != nil {
 		return nil, err
 	}
-	topic = broker.GenerateName()
 	producer, err := conn.CreateProducer(pulsar.ProducerOptions{
 		Topic: topic,
 	})
