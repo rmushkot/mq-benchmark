@@ -4,11 +4,12 @@ import (
 	"fmt"
 	"time"
 
+	"../../broker"
 	"github.com/nats-io/nats.go"
 )
 
-const (
-	subject = "test"
+var (
+	subject = broker.GenerateName()
 
 	// Maximum bytes we will get behind before we start slowing down publishing.
 	maxBytesBehind = 1024 * 1024 // 1MB
@@ -96,15 +97,15 @@ func (n *Peer) Setup() {
 
 func (n *Peer) sendMessage(message []byte) error {
 	// Check if we are behind by >= 1MB bytes.
-	bytesDeltaOver := n.conn.OutBytes-n.conn.InBytes >= maxBytesBehind
+	// bytesDeltaOver := n.conn.OutBytes-n.conn.InBytes >= maxBytesBehind
 
-	// Check if we are behind by >= 65k msgs.
-	msgsDeltaOver := n.conn.OutMsgs-n.conn.InMsgs >= maxMsgsBehind
+	// // Check if we are behind by >= 65k msgs.
+	// msgsDeltaOver := n.conn.OutMsgs-n.conn.InMsgs >= maxMsgsBehind
 
-	// If we are behind on either condition, sleep a bit to catch up receiver.
-	if bytesDeltaOver || msgsDeltaOver {
-		time.Sleep(delay)
-	}
+	// // If we are behind on either condition, sleep a bit to catch up receiver.
+	// if bytesDeltaOver || msgsDeltaOver {
+	// 	time.Sleep(delay)
+	// }
 
 	return n.conn.Publish(subject, message)
 }

@@ -3,10 +3,11 @@ package activemq
 import (
 	"fmt"
 
+	"../../broker"
 	"gopkg.in/stomp.v1"
 )
 
-const queue = "test"
+var queue = broker.GenerateName()
 
 // Peer implements the peer interface for ActiveMQ.
 type Peer struct {
