@@ -4,10 +4,11 @@ import (
 	"context"
 	"fmt"
 
+	"../../broker"
 	"github.com/apache/pulsar-client-go/pulsar"
 )
 
-const (
+var (
 	topic = "test"
 )
 
@@ -30,7 +31,7 @@ func NewPeer(host string) (*Peer, error) {
 	if err != nil {
 		return nil, err
 	}
-
+	topic = broker.GenerateName()
 	producer, err := conn.CreateProducer(pulsar.ProducerOptions{
 		Topic: topic,
 	})

@@ -1,17 +1,28 @@
 Starting broker - if the image hasn't been pulled yet, this may take a while...
-Preparing producers
-Sending request to 18.219.117.4:9500
-Sending request to 3.138.136.171:9500
-Sending request to 3.23.128.251:9500
-Preparing consumers
-sendig request to 18.219.117.4:9500
-sendig request to 3.138.136.171:9500
-sendig request to 3.23.128.251:9500
-Running benchmark
 Tearing down peers
+Failed to teardown peer: dial tcp 18.219.117.4:9500: connect: connection refused
+Failed to teardown peer: dial tcp 3.138.136.171:9500: connect: connection refused
+Failed to teardown peer: dial tcp 3.23.128.251:9500: connect: connection refused
+Stopping broker
+Failed to stop broker: dial tcp 18.219.117.4:9500: conneFailed to teardown peer: dial tcp 3.138.136.171:9500: connect: operation timed out
+Failed to teardown peer: dial tcp 3.138.136.171:9500: connect: operation timed out
+Failed to teardown peer: dial tcp 3.23.128.251:9500: connect: operation timed out
+Stopping broker
+Failed to teardown peer: dial tcp 3.23.128.251:9500: connect: operation timed out
+Stopping broker
+Failed to stop broker: dial tcp 18.219.117.4:9500: connect: operation timed out
 
-Shutting down...
-Tearing down peers
-Stopping broker
-Stopping broker
-Failed to stop broker: dial tcp 18.219.117.4:9500: connect: connection refused
+TEST SUMMARY
+
+Time Elapsed:       5h41m5.831995172s
+Broker:             activemq (18.219.117.4:9500)
+Failed to stop broker: dial tcp 18.219.117.4:9500: connect: operation timed out
+Nodes:              [18.219.117.4:9500 3.138.136.171:9500 3.23.128.251:9500]
+Producers per node: 1
+Consumers per node: 1
+Messages produced:  3000000
+Messages consumed:  3000000
+Bytes per message:  100
+Data produced (KB): 300000
+Data consumed (KB): 300000
+
