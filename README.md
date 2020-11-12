@@ -25,6 +25,7 @@ Flotilla supports several message brokers out of the box:
 - [ActiveMQ](http://activemq.apache.org/)
 - [RabbitMQ](http://www.rabbitmq.com/)
 - [NSQ](http://nsq.io/)
+- [Pulsar](https://pulsar.apache.org/)
 
 ## Installation
 
