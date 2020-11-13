@@ -3,10 +3,11 @@ package kafka
 import (
 	"fmt"
 
+	"../../broker"
 	"github.com/Shopify/sarama"
 )
 
-const topic = "myTopic"
+var topic = broker.GenerateName()
 
 // Peer implements the peer interface for Kafka.
 type Peer struct {
