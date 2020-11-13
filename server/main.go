@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"runtime"
 
-	"./daemon"
+	"github.com/rmushkot/mq-benchmark/server/daemon"
 )
 
 const defaultPort = 9500
