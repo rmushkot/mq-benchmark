@@ -19,8 +19,7 @@ const (
 					-e ALLOW_PLAINTEXT_LISTENER=yes \
 					-e KAFKA_CFG_ZOOKEEPER_CONNECT=zookeeper-server:2181 \
 					bitnami/kafka:latest`
-	dockerCmd = "docker-compose up"
-	docker
+	dockerCmd = "docker-compose -f docker-compose-single-broker up -d"
 )
 
 // Broker implements the broker interface for Kafka.
@@ -47,17 +46,13 @@ func (k *Broker) Start(host, port string) (interface{}, error) {
 
 	// time.Sleep(time.Minute)
 	// // cmd = fmt.Sprintf(kafkaCmd, host, kafkaPort, kafkaPort, jmxPort, jmxPort, host, host, kafka)
-	// cmd = fmt.Sprintf(kafkaCmd)
-	// kafkaContainerID, err := exec.Command("/bin/sh", "-c", cmd).Output()
-	// if err != nil {
-	// 	log.Printf("Failed to start container %s: %s", kafka, err.Error())
-	// 	k.Stop()
-	// 	return "", err
-	// }
-
-	// log.Printf("Started container %s: %s", kafka, kafkaContainerID)
-	// k.kafkaContainerID = string(kafkaContainerID)
-	// k.zookeeperContainerID = string(zkContainerID)
+	// // cmd = fmt.Sprintf(kafkaCmd)
+	// // kafkaContainerID, err := exec.Command("/bin/sh", "-c", cmd).Output()
+	// // if err != nil {
+	// // 	log.Printf("Failed to start container %s: %s", kafka, err.Error())
+	// // 	k.Stop()
+	// // 	return "", err
+	// // }
 
 	// // NOTE: Leader election can take a while. For now, just sleep to try to
 	// // ensure the cluster is ready. Is there a way to avoid this or make it

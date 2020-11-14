@@ -28,6 +28,7 @@ const (
 type Peer struct {
 	conn     *nats.Conn
 	sconn    stan.Conn
+	sub      stan.Subscription
 	messages chan []byte
 	send     chan []byte
 	errors   chan error
@@ -53,6 +54,7 @@ func NewPeer(host string) (*Peer, error) {
 	return &Peer{
 		conn:     conn,
 		sconn:    sc,
+		sub:      nil,
 		messages: make(chan []byte, 100000),
 		send:     make(chan []byte),
 		errors:   make(chan error, 1),
@@ -62,10 +64,11 @@ func NewPeer(host string) (*Peer, error) {
 
 // Subscribe prepares the peer to consume messages.
 func (n *Peer) Subscribe() error {
-	n.sconn.Subscribe(subject, func(message *stan.Msg) {
+	s, err := n.sconn.Subscribe(subject, func(message *stan.Msg) {
 		n.messages <- message.Data
 	})
-	return nil
+	n.sub = s
+	return err
 }
 
 // Recv returns a single message consumed by the peer. Subscribe must be called
@@ -124,12 +127,18 @@ func (n *Peer) sendMessage(message []byte) error {
 		}
 	}
 	_, err := n.sconn.PublishAsync(subject, message, ackHandler)
+	if err != nil {
+		log.Printf("Error Publishing a message. %v", err.Error())
+	}
 	return err
 }
 
 // Teardown performs any cleanup logic that needs to be performed after the
 // test is complete.
 func (n *Peer) Teardown() {
+	if n.sub != nil {
+		n.sub.Unsubscribe()
+	}
 	n.conn.Close()
 	n.sconn.Close()
 }

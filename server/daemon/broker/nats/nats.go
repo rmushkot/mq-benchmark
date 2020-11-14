@@ -88,9 +88,11 @@ func (n *Peer) Setup() {
 					n.errors <- err
 				}
 			case <-n.done:
+				n.conn.Flush()
 				return
 			}
 		}
+
 	}()
 }
 

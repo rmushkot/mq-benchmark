@@ -112,4 +112,7 @@ func (k *Peer) Teardown() {
 	if k.consumer != nil {
 		k.consumer.Close()
 	}
+	if k.producer != nil {
+		k.producer.Close()
+	}
 }

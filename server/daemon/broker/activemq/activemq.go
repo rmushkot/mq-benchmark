@@ -3,7 +3,7 @@ package activemq
 import (
 	"fmt"
 
-	"gopkg.in/stomp.v1"
+	"github.com/go-stomp/stomp"
 )
 
 const queue = "test"
@@ -19,7 +19,7 @@ type Peer struct {
 
 // NewPeer creates and returns a new Peer for communicating with ActiveMQ.
 func NewPeer(host string) (*Peer, error) {
-	conn, err := stomp.Dial("tcp", fmt.Sprintf("%s:61613", host), stomp.Options{})
+	conn, err := stomp.Dial("tcp", fmt.Sprintf("%s:61613", host))
 	if err != nil {
 		return nil, err
 	}
@@ -71,7 +71,7 @@ func (a *Peer) Setup() {
 		for {
 			select {
 			case msg := <-a.send:
-				if err := a.conn.Send(queue, "", msg, nil); err != nil {
+				if err := a.conn.Send(queue, "text/plain", msg, nil); err != nil {
 					a.errors <- err
 				}
 			case <-a.done:
