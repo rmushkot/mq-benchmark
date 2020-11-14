@@ -4,8 +4,8 @@ import (
 	"context"
 	"fmt"
 
-	"../../broker"
 	"github.com/apache/pulsar-client-go/pulsar"
+	"github.com/rmushkot/mq-benchmark/server/daemon/broker"
 )
 
 var (

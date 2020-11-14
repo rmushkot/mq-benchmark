@@ -3,7 +3,7 @@ package amqp
 import (
 	"fmt"
 
-	"../../broker"
+	"github.com/rmushkot/mq-benchmark/server/daemon/broker"
 	"github.com/streadway/amqp"
 )
 

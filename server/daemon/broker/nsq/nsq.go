@@ -3,8 +3,8 @@ package nsq
 import (
 	"fmt"
 
-	"../../broker"
-	"github.com/bitly/go-nsq"
+	"github.com/nsqio/go-nsq"
+	"github.com/rmushkot/mq-benchmark/server/daemon/broker"
 )
 
 var (
