@@ -4,8 +4,8 @@ import (
 	"fmt"
 	"time"
 
-	"../../broker"
 	"github.com/nats-io/nats.go"
+	"github.com/rmushkot/mq-benchmark/server/daemon/broker"
 )
 
 var (

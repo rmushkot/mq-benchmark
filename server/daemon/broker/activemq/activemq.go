@@ -3,7 +3,7 @@ package activemq
 import (
 	"fmt"
 
-	"../../broker"
+	"github.com/rmushkot/mq-benchmark/server/daemon/broker"
 	"gopkg.in/stomp.v1"
 )
 

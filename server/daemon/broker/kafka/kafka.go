@@ -3,8 +3,8 @@ package kafka
 import (
 	"fmt"
 
-	"../../broker"
 	"github.com/Shopify/sarama"
+	"github.com/rmushkot/mq-benchmark/server/daemon/broker"
 )
 
 var topic = broker.GenerateName()
