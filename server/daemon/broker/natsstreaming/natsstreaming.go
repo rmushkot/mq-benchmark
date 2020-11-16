@@ -10,8 +10,8 @@ import (
 	"github.com/rmushkot/mq-benchmark/server/daemon/broker"
 )
 
-const (
-	subject   = "test"
+var (
+	subject   = broker.GenerateName()
 	clusterID = "test-cluster"
 	clientID  = "stan-bench"
 	// Maximum bytes we will get behind before we start slowing down publishing.

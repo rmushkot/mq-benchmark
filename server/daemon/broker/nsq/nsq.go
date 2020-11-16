@@ -7,8 +7,8 @@ import (
 	"github.com/rmushkot/mq-benchmark/server/daemon/broker"
 )
 
-const (
-	topic = "test"
+var (
+	topic = broker.GenerateName()
 
 	// bufferSize is the number of messages we try to publish at a time to
 	// increase throughput. TODO: this might need tweaking.

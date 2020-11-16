@@ -1,0 +1,29 @@
+Starting broker - if the image hasn't been pulled yet, this may take a while...
+Preparing producers
+Sending request to 18.189.11.167:9500
+Sending request to 3.15.152.25:9500
+Sending request to 3.22.95.209:9500
+Preparing consumers
+sendig request to 18.189.11.167:9500
+sendig request to 3.15.152.25:9500
+sendig request to 3.22.95.209:9500
+Running benchmark
+Failed to collect results from peer: Failed to collect results from peer: Tearing down peers
+Failed to teardown peer: dial tcp 18.189.11.167:9500: connect: connection refused
+Failed to teardown peer: dial tcp 3.15.152.25:9500: connect: connection refused
+Stopping broker
+Failed to stop broker: dial tcp 18.189.11.167:9500: connect: connection refused
+
+TEST SUMMARY
+
+Time Elapsed:       3m21.779060296s
+Broker:             activemq (18.189.11.167:9500)
+Nodes:              [18.189.11.167:9500 3.15.152.25:9500 3.22.95.209:9500]
+Producers per node: 1
+Consumers per node: 1
+Messages produced:  3000000
+Messages consumed:  3000000
+Bytes per message:  1000
+Data produced (KB): 3000000
+Data consumed (KB): 3000000
+

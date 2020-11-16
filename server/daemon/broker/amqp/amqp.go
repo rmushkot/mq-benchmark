@@ -7,8 +7,8 @@ import (
 	"github.com/streadway/amqp"
 )
 
-const (
-	exchange = "test"
+var (
+	exchange = broker.GenerateName()
 )
 
 // Peer implements the peer interface for AMQP brokers.
