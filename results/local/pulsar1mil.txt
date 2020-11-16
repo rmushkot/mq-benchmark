@@ -1,0 +1,33 @@
+Starting broker - if the image hasn't been pulled yet, this may take a while...
+Preparing producers
+Preparing consumers
+Running benchmark
+Tearing down peers
+Stopping broker
+
+TEST SUMMARY
+
+Time Elapsed:       2m33.639559406s
+Broker:             pulsar (localhost:9500)
+Nodes:              [localhost:9500]
+Producers per node: 1
+Consumers per node: 1
+Messages produced:  1000000
+Messages consumed:  1000000
+Bytes per message:  1000
+Data produced (KB): 1000000
+Data consumed (KB): 1000000
+
++----------+----------------+-------+-----------+----------------------+
+| PRODUCER |      NODE      | ERROR | DURATION  | THROUGHPUT (MSG/SEC) |
++----------+----------------+-------+-----------+----------------------+
+| 1        | localhost:9500 | false | 34497.965 | 28987.217            |
+| AVG      |                |       | 34497.965 | 28987.217            |
++----------+----------------+-------+-----------+----------------------+
++----------+----------------+-------+-----------+----------------------+--------+--------+--------+--------+---------+--------+--------+---------+
+| CONSUMER |      NODE      | ERROR | DURATION  | THROUGHPUT (MSG/SEC) |  MIN   |   Q1   |   Q2   |   Q3   |   MAX   |  MEAN  |  IQR   | STD DEV |
++----------+----------------+-------+-----------+----------------------+--------+--------+--------+--------+---------+--------+--------+---------+
+| 1        | localhost:9500 | false | 34492.098 | 28992.148            | 31     | 48     | 53     | 62     | 129     | 56.234 | 14     | 13.008  |
+| AVG      |                |       | 34492.098 | 28992.148            | 31.000 | 48.000 | 53.000 | 62.000 | 129.000 | 56.234 | 14.000 | 13.008  |
++----------+----------------+-------+-----------+----------------------+--------+--------+--------+--------+---------+--------+--------+---------+
+All units ms unless noted otherwise

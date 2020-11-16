@@ -210,7 +210,6 @@ func (c *Client) startBroker() error {
 
 func (c *Client) startSubscribers() error {
 	for _, peerd := range c.Benchmark.PeerHosts {
-		fmt.Println("sendig request to", peerd)
 		resp, err := sendRequest(peerd, request{
 			Operation:   sub,
 			Broker:      c.Benchmark.BrokerName,
@@ -233,7 +232,6 @@ func (c *Client) startSubscribers() error {
 
 func (c *Client) startPublishers() error {
 	for _, peerd := range c.Benchmark.PeerHosts {
-		fmt.Println("Sending request to", peerd)
 		resp, err := sendRequest(peerd, request{
 			Operation:   pub,
 			Broker:      c.Benchmark.BrokerName,

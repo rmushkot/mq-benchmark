@@ -41,7 +41,7 @@ func (n *Broker) Start(host, port string) (interface{}, error) {
 // Stop will stop the message broker.
 func (n *Broker) Stop() (interface{}, error) {
 	containerID, err := exec.Command("/bin/sh", "-c",
-		fmt.Sprintf("sudo docker kill %s", n.containerID)).Output()
+		fmt.Sprintf("docker kill %s", n.containerID)).Output()
 	if err != nil {
 		log.Printf("Failed to stop container %s: %s", pulsard, err.Error())
 		return "", err

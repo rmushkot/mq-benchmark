@@ -15,13 +15,13 @@ var (
 	clusterID = "test-cluster"
 	clientID  = "stan-bench"
 	// Maximum bytes we will get behind before we start slowing down publishing.
-	maxBytesBehind = 1024 * 1024 // 1MB
+	maxBytesBehind uint64 = 1024 * 1024 // 1MB
 
 	// Maximum msgs we will get behind before we start slowing down publishing.
-	maxMsgsBehind = 65536 // 64k
+	maxMsgsBehind uint64 = 65536 // 64k
 
 	// Time to delay publishing when we are behind.
-	delay = 0 * time.Millisecond
+	delay = 2 * time.Millisecond
 )
 
 // Peer implements the peer interface for NATS.
@@ -110,15 +110,15 @@ func (n *Peer) Setup() {
 
 func (n *Peer) sendMessage(message []byte) error {
 	// Check if we are behind by >= 1MB bytes.
-	// bytesDeltaOver := n.conn.OutBytes-n.conn.InBytes >= maxBytesBehind
+	bytesDeltaOver := n.conn.OutBytes-n.conn.InBytes >= maxBytesBehind
 
-	// // Check if we are behind by >= 65k msgs.
-	// msgsDeltaOver := n.conn.OutMsgs-n.conn.InMsgs >= maxMsgsBehind
+	// Check if we are behind by >= 65k msgs.
+	msgsDeltaOver := n.conn.OutMsgs-n.conn.InMsgs >= maxMsgsBehind
 
-	// // If we are behind on either condition, sleep a bit to catch up receiver.
-	// if bytesDeltaOver || msgsDeltaOver {
-	// 	time.Sleep(delay)
-	// }
+	// If we are behind on either condition, sleep a bit to catch up receiver.
+	if bytesDeltaOver || msgsDeltaOver {
+		time.Sleep(delay)
+	}
 	ackHandler := func(ackedNuid string, err error) {
 		if err != nil {
 			log.Printf("Warning: error publishing msg id %s: %v\n", ackedNuid, err.Error())

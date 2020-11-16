@@ -88,7 +88,7 @@ func (a *Peer) Subscribe() error {
 		true,         // auto ack
 		false,        // exclusive
 		true,         // no local
-		false,        //  no wait
+		false,        // no wait
 		nil,          // args
 	)
 	if err != nil {

@@ -3,6 +3,7 @@ package pulsar
 import (
 	"context"
 	"fmt"
+	"time"
 
 	"github.com/apache/pulsar-client-go/pulsar"
 	"github.com/rmushkot/mq-benchmark/server/daemon/broker"
@@ -32,7 +33,10 @@ func NewPeer(host string) (*Peer, error) {
 		return nil, err
 	}
 	producer, err := conn.CreateProducer(pulsar.ProducerOptions{
-		Topic: topic,
+		Topic:                   topic,
+		BatchingMaxPublishDelay: 10 * time.Millisecond,
+		BatchingMaxMessages:     5000,
+		BatchingMaxSize:         1000,
 	})
 
 	if err != nil {
@@ -52,9 +56,10 @@ func NewPeer(host string) (*Peer, error) {
 // Subscribe prepares the peer to consume messages.
 func (n *Peer) Subscribe() error {
 	consumer, err := n.conn.Subscribe(pulsar.ConsumerOptions{
-		Topic:            topic,
-		SubscriptionName: "my-sub",
-		Type:             pulsar.Shared,
+		Topic:             topic,
+		SubscriptionName:  "my-sub",
+		Type:              pulsar.Shared,
+		ReceiverQueueSize: 10000,
 	})
 	n.consumer = consumer
 	return err
