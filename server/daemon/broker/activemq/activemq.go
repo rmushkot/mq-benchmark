@@ -8,7 +8,10 @@ import (
 )
 
 var queue = broker.GenerateName()
-
+var options []func(*stomp.Conn) error = []func(*stomp.Conn) error{
+	stomp.ConnOpt.ReadChannelCapacity(40), 
+	stomp.ConnOpt.WriteChannelCapacity(40),
+}
 // Peer implements the peer interface for ActiveMQ.
 type Peer struct {
 	conn   *stomp.Conn
@@ -20,7 +23,7 @@ type Peer struct {
 
 // NewPeer creates and returns a new Peer for communicating with ActiveMQ.
 func NewPeer(host string) (*Peer, error) {
-	conn, err := stomp.Dial("tcp", fmt.Sprintf("%s:61613", host))
+	conn, err := stomp.Dial("tcp", fmt.Sprintf("%s:61613", host),options...)
 	if err != nil {
 		return nil, err
 	}

@@ -35,8 +35,8 @@ func NewPeer(host string) (*Peer, error) {
 	producer, err := conn.CreateProducer(pulsar.ProducerOptions{
 		Topic:                   topic,
 		BatchingMaxPublishDelay: 2 * time.Millisecond,
-		BatchingMaxMessages:     500,
-		BatchingMaxSize:         1000,
+		// BatchingMaxMessages:     10000,
+		// BatchingMaxSize:         1000,
 	})
 
 	if err != nil {
@@ -59,7 +59,7 @@ func (n *Peer) Subscribe() error {
 		Topic:             topic,
 		SubscriptionName:  "my-sub",
 		Type:              pulsar.Shared,
-		ReceiverQueueSize: 10000,
+		// ReceiverQueueSize: 10000,
 	})
 	n.consumer = consumer
 	return err
