@@ -4,9 +4,10 @@ import (
 	"fmt"
 
 	"github.com/Shopify/sarama"
+	"github.com/rmushkot/mq-benchmark/server/daemon/broker"
 )
 
-const topic = "myTopic"
+var topic = broker.GenerateName()
 
 // Peer implements the peer interface for Kafka.
 type Peer struct {

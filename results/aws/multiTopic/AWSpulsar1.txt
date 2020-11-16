@@ -1,0 +1,35 @@
+Starting broker - if the image hasn't been pulled yet, this may take a while...
+Preparing producers
+Sending request to 3.15.152.25:9500
+Preparing consumers
+sendig request to 3.15.152.25:9500
+Running benchmark
+Tearing down peers
+Stopping broker
+
+TEST SUMMARY
+
+Time Elapsed:       1m2.506099144s
+Broker:             pulsar (18.189.11.167:9500)
+Nodes:              [3.15.152.25:9500]
+Producers per node: 1
+Consumers per node: 1
+Messages produced:  1000000
+Messages consumed:  1000000
+Bytes per message:  1000
+Data produced (KB): 1000000
+Data consumed (KB): 1000000
+
++----------+------------------+-------+-----------+----------------------+
+| PRODUCER |       NODE       | ERROR | DURATION  | THROUGHPUT (MSG/SEC) |
++----------+------------------+-------+-----------+----------------------+
+| 1        | 3.15.152.25:9500 | false | 11882.886 | 84154.641            |
+| AVG      |                  |       | 11882.886 | 84154.641            |
++----------+------------------+-------+-----------+----------------------+
++----------+------------------+-------+-----------+----------------------+-------+--------+--------+--------+---------+--------+-------+---------+
+| CONSUMER |       NODE       | ERROR | DURATION  | THROUGHPUT (MSG/SEC) |  MIN  |   Q1   |   Q2   |   Q3   |   MAX   |  MEAN  |  IQR  | STD DEV |
++----------+------------------+-------+-----------+----------------------+-------+--------+--------+--------+---------+--------+-------+---------+
+| 1        | 3.15.152.25:9500 | false | 11826.803 | 84553.703            | 7     | 18     | 20     | 24     | 106     | 21.507 | 6     | 6.420   |
+| AVG      |                  |       | 11826.803 | 84553.703            | 7.000 | 18.000 | 20.000 | 24.000 | 106.000 | 21.507 | 6.000 | 6.420   |
++----------+------------------+-------+-----------+----------------------+-------+--------+--------+--------+---------+--------+-------+---------+
+All units ms unless noted otherwise

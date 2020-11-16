@@ -4,9 +4,10 @@ import (
 	"fmt"
 
 	"github.com/go-stomp/stomp"
+	"github.com/rmushkot/mq-benchmark/server/daemon/broker"
 )
 
-const queue = "test"
+var queue = broker.GenerateName()
 
 // Peer implements the peer interface for ActiveMQ.
 type Peer struct {
