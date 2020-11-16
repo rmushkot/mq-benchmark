@@ -29,7 +29,9 @@ type Peer struct {
 
 // NewPeer creates and returns a new Peer for communicating with NSQ.
 func NewPeer(host string) (*Peer, error) {
-	producer, err := nsq.NewProducer(fmt.Sprintf("%s:4150", host), nsq.NewConfig())
+	conf := nsq.NewConfig()
+	conf.MaxInFlight = 0
+	producer, err := nsq.NewProducer(fmt.Sprintf("%s:4150", host), conf)
 	if err != nil {
 		return nil, err
 	}
@@ -37,7 +39,7 @@ func NewPeer(host string) (*Peer, error) {
 	return &Peer{
 		host:     fmt.Sprintf("%s:4150", host),
 		producer: producer,
-		messages: make(chan []byte, 10000),
+		messages: make(chan []byte, 1000000),
 		send:     make(chan []byte),
 		errors:   make(chan error, 1),
 		done:     make(chan bool),
@@ -47,7 +49,9 @@ func NewPeer(host string) (*Peer, error) {
 
 // Subscribe prepares the peer to consume messages.
 func (n *Peer) Subscribe() error {
-	consumer, err := nsq.NewConsumer(topic, broker.GenerateName(), nsq.NewConfig())
+	conf := nsq.NewConfig()
+	conf.MaxInFlight = 2500 // Allows consumer to get around 25000 msg/sec but decreases producer to around 43000
+	consumer, err := nsq.NewConsumer(topic, broker.GenerateName(), conf)
 	if err != nil {
 		return err
 	}

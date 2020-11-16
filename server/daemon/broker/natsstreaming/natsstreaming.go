@@ -21,7 +21,7 @@ var (
 	maxMsgsBehind uint64 = 65536 // 64k
 
 	// Time to delay publishing when we are behind.
-	delay = 2 * time.Millisecond
+	delay = 0 * time.Millisecond
 )
 
 // Peer implements the peer interface for NATS.

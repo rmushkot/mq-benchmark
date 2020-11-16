@@ -34,8 +34,8 @@ func NewPeer(host string) (*Peer, error) {
 	}
 	producer, err := conn.CreateProducer(pulsar.ProducerOptions{
 		Topic:                   topic,
-		BatchingMaxPublishDelay: 10 * time.Millisecond,
-		BatchingMaxMessages:     5000,
+		BatchingMaxPublishDelay: 2 * time.Millisecond,
+		BatchingMaxMessages:     500,
 		BatchingMaxSize:         1000,
 	})
 
