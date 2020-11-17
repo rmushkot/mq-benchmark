@@ -3,7 +3,6 @@ package pulsar
 import (
 	"context"
 	"fmt"
-	"time"
 
 	"github.com/apache/pulsar-client-go/pulsar"
 	"github.com/rmushkot/mq-benchmark/server/daemon/broker"
@@ -33,8 +32,8 @@ func NewPeer(host string) (*Peer, error) {
 		return nil, err
 	}
 	producer, err := conn.CreateProducer(pulsar.ProducerOptions{
-		Topic:                   topic,
-		BatchingMaxPublishDelay: 2 * time.Millisecond,
+		Topic: topic,
+		// BatchingMaxPublishDelay: 2 * time.Millisecond,
 		// BatchingMaxMessages:     10000,
 		// BatchingMaxSize:         1000,
 	})
@@ -56,9 +55,9 @@ func NewPeer(host string) (*Peer, error) {
 // Subscribe prepares the peer to consume messages.
 func (n *Peer) Subscribe() error {
 	consumer, err := n.conn.Subscribe(pulsar.ConsumerOptions{
-		Topic:             topic,
-		SubscriptionName:  "my-sub",
-		Type:              pulsar.Shared,
+		Topic:            topic,
+		SubscriptionName: "my-sub",
+		Type:             pulsar.Shared,
 		// ReceiverQueueSize: 10000,
 	})
 	n.consumer = consumer
@@ -94,14 +93,16 @@ func (n *Peer) Setup() {
 		for {
 			select {
 			case msg := <-n.send:
-				n.producer.SendAsync(context.Background(), &pulsar.ProducerMessage{
-					Payload: msg,
-				}, func(id pulsar.MessageID, message *pulsar.ProducerMessage, err error) {
-					if err != nil {
-						fmt.Println("Failed to publish", err)
-						n.errors <- err
-					}
-				})
+				go func() {
+					n.producer.SendAsync(context.Background(), &pulsar.ProducerMessage{
+						Payload: msg,
+					}, func(id pulsar.MessageID, message *pulsar.ProducerMessage, err error) {
+						if err != nil {
+							fmt.Println("Failed to publish", err)
+							n.errors <- err
+						}
+					})
+				}()
 			case <-n.done:
 				return
 			}
