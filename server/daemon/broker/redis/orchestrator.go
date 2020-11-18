@@ -3,8 +3,8 @@ package redis
 import (
 	"fmt"
 	"log"
-	"os"
 	"os/exec"
+	"strings"
 	"time"
 )
 
@@ -22,13 +22,12 @@ type Broker struct {
 func (b *Broker) Start(host, port string) (interface{}, error) {
 	cmd := exec.Command("docker", "run", "-d", "-p",
 		fmt.Sprintf("%d:%d", redisPort, redisPort), redisDockerImg)
-	cmd.Env = os.Environ()
 	containerID, err := cmd.Output()
 	if err != nil {
 		log.Printf("Failed to start container %s: %s", redisDockerImg, err.Error())
 		return "", err
 	}
-	b.containerID = string(containerID)
+	b.containerID = strings.TrimSpace(string(containerID))
 	log.Printf("Started container %s: %s", redisDockerImg, b.containerID)
 	time.Sleep(10 * time.Second)
 	return b.containerID, nil
@@ -37,7 +36,6 @@ func (b *Broker) Start(host, port string) (interface{}, error) {
 // Stop will stop the message broker.
 func (b *Broker) Stop() (interface{}, error) {
 	cmd := exec.Command("docker", "kill", b.containerID)
-	cmd.Env = os.Environ()
 	containerID, err := cmd.Output()
 	if err != nil {
 		if err, ok := err.(*exec.ExitError); ok {
