@@ -38,7 +38,6 @@ func (b *Broker) Start(host, port string) (interface{}, error) {
 func (b *Broker) Stop() (interface{}, error) {
 	cmd := exec.Command("docker", "kill", b.containerID)
 	cmd.Env = os.Environ()
-	log.Println(cmd.Env)
 	containerID, err := cmd.Output()
 	if err != nil {
 		if err, ok := err.(*exec.ExitError); ok {

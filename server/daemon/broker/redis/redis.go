@@ -71,11 +71,13 @@ func (p *PubSubPeer) Setup() {
 		for {
 			select {
 			case msg := <-p.send:
-				err := p.conn.Publish(context.Background(), channelKey, msg).Err()
-				if err != nil {
-					fmt.Println("Failed to publish", err)
-					p.errors <- err
-				}
+				go func() {
+					err := p.conn.Publish(context.Background(), channelKey, msg).Err()
+					if err != nil {
+						fmt.Println("Failed to publish", err)
+						p.errors <- err
+					}
+				}()
 			case <-p.done:
 				return
 			}
