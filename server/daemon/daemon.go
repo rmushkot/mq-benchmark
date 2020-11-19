@@ -13,6 +13,7 @@ import (
 	"github.com/rmushkot/mq-benchmark/server/daemon/broker/amqp/rabbitmq"
 	"github.com/rmushkot/mq-benchmark/server/daemon/broker/beanstalkd"
 	"github.com/rmushkot/mq-benchmark/server/daemon/broker/kafka"
+	"github.com/rmushkot/mq-benchmark/server/daemon/broker/liftbridge"
 	"github.com/rmushkot/mq-benchmark/server/daemon/broker/nats"
 	"github.com/rmushkot/mq-benchmark/server/daemon/broker/natsstreaming"
 	"github.com/rmushkot/mq-benchmark/server/daemon/broker/nsq"
@@ -44,6 +45,7 @@ const (
 	Redis         = "redis"
 	NATSStreaming = "natsstreaming"
 	Pulsar        = "pulsar"
+	Liftbridge    = "liftbridge"
 )
 
 type request struct {
@@ -224,6 +226,8 @@ func (d *Daemon) processBrokerStart(broker, host, port string) (interface{}, err
 		d.broker = &natsstreaming.Broker{}
 	case Pulsar:
 		d.broker = &pulsar.Broker{}
+	case Liftbridge:
+		d.broker = &liftbridge.Broker{}
 	default:
 		return "", fmt.Errorf("Invalid broker %s", broker)
 	}
@@ -350,6 +354,8 @@ func (d *Daemon) newPeer(broker, host string) (peer, error) {
 		return natsstreaming.NewPeer(host)
 	case Pulsar:
 		return pulsar.NewPeer(host)
+	case Liftbridge:
+		return liftbridge.NewPeer(host)
 	default:
 		return nil, fmt.Errorf("Invalid broker: %s", broker)
 	}

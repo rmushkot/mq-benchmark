@@ -37,6 +37,7 @@ var brokers = []string{
 	"redis",
 	"natsstreaming",
 	"pulsar",
+	"liftbridge",
 }
 
 func main() {
