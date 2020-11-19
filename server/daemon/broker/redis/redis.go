@@ -5,12 +5,12 @@ import (
 	"fmt"
 
 	"github.com/go-redis/redis/v8"
+	"github.com/rmushkot/mq-benchmark/server/daemon/broker"
 )
 
-const (
-	redisPort  = 6379
-	channelKey = "mqbenchmark:chan"
-)
+const redisPort = 6379
+
+var channelKey = broker.GenerateName()
 
 // PubSubPeer implements the peer interface for Redis Pub/Sub
 // for more info on RedisPubSub see https://redis.io/topics/pubsub
@@ -67,22 +67,25 @@ func (p *PubSubPeer) Done() {
 
 // Setup prepares the peer for testing.
 func (p *PubSubPeer) Setup() {
-	go func() {
+	publisherFn := func() {
 		for {
 			select {
 			case msg := <-p.send:
-				go func() {
-					err := p.conn.Publish(context.Background(), channelKey, msg).Err()
-					if err != nil {
-						fmt.Println("Failed to publish", err)
-						p.errors <- err
-					}
-				}()
+				err := p.conn.Publish(context.Background(), channelKey, msg).Err()
+				if err != nil {
+					fmt.Println("Failed to publish", err)
+					p.errors <- err
+				}
 			case <-p.done:
+				p.done <- true // signal next peer to stop
 				return
 			}
 		}
-	}()
+	}
+
+	for i := 0; i < p.conn.Options().PoolSize; i++ {
+		go publisherFn()
+	}
 }
 
 // Teardown performs any cleanup logic that needs to be performed after the
