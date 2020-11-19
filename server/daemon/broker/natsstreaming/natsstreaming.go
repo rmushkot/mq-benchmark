@@ -67,6 +67,7 @@ func (n *Peer) Subscribe() error {
 	s, err := n.sconn.Subscribe(subject, func(message *stan.Msg) {
 		n.messages <- message.Data
 	})
+	s.SetPendingLimits(-1, -1)
 	n.sub = s
 	return err
 }

@@ -33,9 +33,10 @@ func NewPeer(host string) (*Peer, error) {
 	}
 	producer, err := conn.CreateProducer(pulsar.ProducerOptions{
 		Topic: topic,
-		// BatchingMaxPublishDelay: 2 * time.Millisecond,
-		// BatchingMaxMessages:     10000,
-		// BatchingMaxSize:         1000,
+		// BatchingMaxPublishDelay: 30 * time.Millisecond,
+		// BatchingMaxMessages:     50000,
+		// BatchingMaxSize:         5 * 1000,
+		// MaxPendingMessages: 10000,
 	})
 
 	if err != nil {
@@ -112,12 +113,14 @@ func (n *Peer) Setup() {
 
 // Teardown performs any cleanup logic that needs to be performed after the
 // test is complete.
+//Print address when opening and closing
 func (n *Peer) Teardown() {
 	n.conn.Close()
 	if n.producer != nil {
 		n.producer.Close()
 	}
 	if n.consumer != nil {
+		n.consumer.Unsubscribe()
 		n.consumer.Close()
 	}
 }

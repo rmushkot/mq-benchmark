@@ -23,11 +23,12 @@ var (
 
 // Peer implements the peer interface for NATS.
 type Peer struct {
-	conn     *nats.Conn
-	messages chan []byte
-	send     chan []byte
-	errors   chan error
-	done     chan bool
+	conn         *nats.Conn
+	subscription *nats.Subscription
+	messages     chan []byte
+	send         chan []byte
+	errors       chan error
+	done         chan bool
 }
 
 // NewPeer creates and returns a new Peer for communicating with NATS.
@@ -52,10 +53,12 @@ func NewPeer(host string) (*Peer, error) {
 
 // Subscribe prepares the peer to consume messages.
 func (n *Peer) Subscribe() error {
-	n.conn.Subscribe(subject, func(message *nats.Msg) {
+	sub, err := n.conn.Subscribe(subject, func(message *nats.Msg) {
 		n.messages <- message.Data
 	})
-	return nil
+	sub.SetPendingLimits(5000, 10*1024*1024)
+	n.subscription = sub
+	return err
 }
 
 // Recv returns a single message consumed by the peer. Subscribe must be called
