@@ -17,7 +17,7 @@ type Peer struct {
 	conn     pulsar.Client
 	producer pulsar.Producer
 	consumer pulsar.Consumer
-	messages chan []byte
+	messages chan pulsar.ConsumerMessage
 	send     chan []byte
 	errors   chan error
 	done     chan bool
@@ -39,10 +39,12 @@ func NewPeer(host string) (*Peer, error) {
 		return nil, err
 	}
 
+	channel := make(chan pulsar.ConsumerMessage)
 	return &Peer{
 		conn:     conn,
 		producer: producer,
 		consumer: nil,
+		messages: channel,
 		send:     make(chan []byte),
 		errors:   make(chan error, 1),
 		done:     make(chan bool),
@@ -55,6 +57,7 @@ func (n *Peer) Subscribe() error {
 		Topic:            topic,
 		SubscriptionName: "my-sub",
 		Type:             pulsar.Shared,
+		MessageChannel:   n.messages,
 	})
 	n.consumer = consumer
 	return err
@@ -63,9 +66,9 @@ func (n *Peer) Subscribe() error {
 // Recv returns a single message consumed by the peer. Subscribe must be called
 // before this. It returns an error if the receive failed.
 func (n *Peer) Recv() ([]byte, error) {
-	msg, err := n.consumer.Receive(context.Background())
+	msg := <-n.messages
 	n.consumer.Ack(msg)
-	return msg.Payload(), err
+	return msg.Payload(), nil
 }
 
 // Send returns a channel on which messages can be sent for publishing.
