@@ -17,7 +17,6 @@ type Peer struct {
 	conn     pulsar.Client
 	producer pulsar.Producer
 	consumer pulsar.Consumer
-	messages chan []byte
 	send     chan []byte
 	errors   chan error
 	done     chan bool

@@ -17,6 +17,7 @@ import (
 	"github.com/rmushkot/mq-benchmark/server/daemon/broker/natsstreaming"
 	"github.com/rmushkot/mq-benchmark/server/daemon/broker/nsq"
 	"github.com/rmushkot/mq-benchmark/server/daemon/broker/pulsar"
+	"github.com/rmushkot/mq-benchmark/server/daemon/broker/redis"
 )
 
 type daemon string
@@ -218,6 +219,8 @@ func (d *Daemon) processBrokerStart(broker, host, port string) (interface{}, err
 		d.broker = &activemq.Broker{}
 	case RabbitMQ:
 		d.broker = &rabbitmq.Broker{}
+	case Redis:
+		d.broker = &redis.Broker{}
 	case NSQ:
 		d.broker = &nsq.Broker{}
 	case NATSStreaming:
@@ -344,6 +347,8 @@ func (d *Daemon) newPeer(broker, host string) (peer, error) {
 		return activemq.NewPeer(host)
 	case RabbitMQ:
 		return amqp.NewPeer(host)
+	case Redis:
+		return redis.NewPeer(host)
 	case NSQ:
 		return nsq.NewPeer(host)
 	case NATSStreaming:
