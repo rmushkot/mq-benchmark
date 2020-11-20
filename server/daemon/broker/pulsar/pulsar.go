@@ -16,7 +16,6 @@ type Peer struct {
 	conn     pulsar.Client
 	producer pulsar.Producer
 	consumer pulsar.Consumer
-	messages chan pulsar.ConsumerMessage
 	send     chan []byte
 	errors   chan error
 	done     chan bool
@@ -38,12 +37,10 @@ func NewPeer(host string) (*Peer, error) {
 		return nil, err
 	}
 
-	channel := make(chan pulsar.ConsumerMessage)
 	return &Peer{
 		conn:     conn,
 		producer: producer,
 		consumer: nil,
-		messages: channel,
 		send:     make(chan []byte),
 		errors:   make(chan error, 1),
 		done:     make(chan bool),
@@ -55,8 +52,7 @@ func (n *Peer) Subscribe() error {
 	consumer, err := n.conn.Subscribe(pulsar.ConsumerOptions{
 		Topic:            topic,
 		SubscriptionName: "my-sub",
-		Type:             pulsar.Failover,
-		MessageChannel:   n.messages,
+		Type:             pulsar.Shared,
 	})
 	n.consumer = consumer
 	return err
@@ -65,9 +61,9 @@ func (n *Peer) Subscribe() error {
 // Recv returns a single message consumed by the peer. Subscribe must be called
 // before this. It returns an error if the receive failed.
 func (n *Peer) Recv() ([]byte, error) {
-	msg := <-n.messages
+	msg, err := n.consumer.Receive(context.Background())
 	n.consumer.Ack(msg)
-	return msg.Payload(), nil
+	return msg.Payload(), err
 }
 
 // Send returns a channel on which messages can be sent for publishing.
@@ -109,11 +105,11 @@ func (n *Peer) Setup() {
 // Teardown performs any cleanup logic that needs to be performed after the
 // test is complete.
 func (n *Peer) Teardown() {
-	n.conn.Close()
-	if n.producer != nil {
-		n.producer.Close()
-	}
-	if n.consumer != nil {
-		n.consumer.Close()
-	}
+	// n.conn.Close()
+	// if n.producer != nil {
+	// 	n.producer.Close()
+	// }
+	// if n.consumer != nil {
+	// 	n.consumer.Close()
+	// }
 }
