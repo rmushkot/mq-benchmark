@@ -5,11 +5,10 @@ import (
 	"fmt"
 
 	"github.com/apache/pulsar-client-go/pulsar"
-	"github.com/rmushkot/mq-benchmark/server/daemon/broker"
 )
 
 var (
-	topic = broker.GenerateName()
+	topic = "topic" //broker.GenerateName()
 )
 
 // Peer implements the peer interface for pulsar.
