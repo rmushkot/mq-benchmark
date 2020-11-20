@@ -55,7 +55,7 @@ func (n *Peer) Subscribe() error {
 	consumer, err := n.conn.Subscribe(pulsar.ConsumerOptions{
 		Topic:            topic,
 		SubscriptionName: "my-sub",
-		Type:             pulsar.Shared,
+		Type:             pulsar.Failover,
 		MessageChannel:   n.messages,
 	})
 	n.consumer = consumer
