@@ -105,11 +105,11 @@ func (n *Peer) Setup() {
 // Teardown performs any cleanup logic that needs to be performed after the
 // test is complete.
 func (n *Peer) Teardown() {
-	// n.conn.Close()
-	// if n.producer != nil {
-	// 	n.producer.Close()
-	// }
-	// if n.consumer != nil {
-	// 	n.consumer.Close()
-	// }
+	n.conn.Close()
+	if n.producer != nil {
+		n.producer.Close()
+	}
+	if n.consumer != nil {
+		n.consumer.Close()
+	}
 }

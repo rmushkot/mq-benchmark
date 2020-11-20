@@ -130,7 +130,7 @@ func NewDaemon() (*Daemon, error) {
 func (d *Daemon) Start(port int) error {
 	tcpAddr, err := net.ResolveTCPAddr("tcp", ":"+strconv.Itoa(port))
 	ln, err := net.ListenTCP("tcp", tcpAddr)
-	// defer ln.Close()
+	defer ln.Close()
 	if err != nil {
 		return err
 	}
@@ -139,14 +139,15 @@ func (d *Daemon) Start(port int) error {
 }
 
 func (d *Daemon) loop() error {
+
 	for {
 		c, err := d.lis.Accept()
+		defer c.Close()
 		if err != nil {
 			fmt.Println(err)
 			continue
 			// return err
 		}
-		defer c.Close()
 		d.con = c
 
 		var req request
