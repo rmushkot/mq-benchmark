@@ -1,0 +1,21 @@
+Starting broker - if the image hasn't been pulled yet, this may take a while...
+Preparing producers
+Preparing consumers
+Running benchmark
+Failed to collect results from peer: Tearing down peers
+Failed to teardown peer: dial tcp 18.221.165.110:9500: connect: connection refused
+Stopping broker
+
+TEST SUMMARY
+
+Time Elapsed:       2m45.54462801s
+Broker:             nsq (52.15.214.85:9500)
+Nodes:              [18.221.165.110:9500 3.12.85.85:9500]
+Producers per node: 1
+Consumers per node: 1
+Messages produced:  2000000
+Messages consumed:  2000000
+Bytes per message:  1000
+Data produced (KB): 2000000
+Data consumed (KB): 2000000
+
