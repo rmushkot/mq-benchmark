@@ -44,7 +44,7 @@ func NewPeer(host string) (*Peer, error) {
 
 	return &Peer{
 		conn:     conn,
-		messages: make(chan []byte, 100000),
+		messages: make(chan []byte),
 		send:     make(chan []byte),
 		errors:   make(chan error, 1),
 		done:     make(chan bool),
@@ -56,7 +56,8 @@ func (n *Peer) Subscribe() error {
 	sub, err := n.conn.Subscribe(subject, func(message *nats.Msg) {
 		n.messages <- message.Data
 	})
-	sub.SetPendingLimits(5000, 10*1024*1024)
+	sub.SetPendingLimits(-1, -1)
+	n.conn.Flush()
 	n.subscription = sub
 	return err
 }
@@ -104,16 +105,16 @@ func (n *Peer) Setup() {
 
 func (n *Peer) sendMessage(message []byte) error {
 	// Check if we are behind by >= 1MB bytes.
-	bytesDeltaOver := n.conn.OutBytes-n.conn.InBytes >= maxBytesBehind
+	// bytesDeltaOver := n.conn.OutBytes-n.conn.InBytes >= maxBytesBehind
 
-	// Check if we are behind by >= 65k msgs.
-	msgsDeltaOver := n.conn.OutMsgs-n.conn.InMsgs >= maxMsgsBehind
+	// // Check if we are behind by >= 65k msgs.
+	// msgsDeltaOver := n.conn.OutMsgs-n.conn.InMsgs >= maxMsgsBehind
 
-	// If we are behind on either condition, sleep a bit to catch up receiver.
-	if bytesDeltaOver || msgsDeltaOver {
-		// fmt.Println(bytesDeltaOver, msgsDeltaOver)
-		time.Sleep(delay)
-	}
+	// // If we are behind on either condition, sleep a bit to catch up receiver.
+	// if bytesDeltaOver || msgsDeltaOver {
+	// 	// fmt.Println(bytesDeltaOver, msgsDeltaOver)
+	// 	time.Sleep(delay)
+	// }
 
 	return n.conn.Publish(subject, message)
 }
