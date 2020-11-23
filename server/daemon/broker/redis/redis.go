@@ -16,6 +16,7 @@ var channelKey = broker.GenerateName()
 // for more info on RedisPubSub see https://redis.io/topics/pubsub
 type PubSubPeer struct {
 	conn     *redis.Client
+	pipe     redis.Pipeliner
 	pubsub   *redis.PubSub
 	messages <-chan *redis.Message
 	send     chan []byte
@@ -62,30 +63,44 @@ func (p *PubSubPeer) Errors() <-chan error {
 
 // Done signals to the peer that message publishing has completed.
 func (p *PubSubPeer) Done() {
+	p.pipe.Exec(context.Background())
 	p.done <- true
 }
 
 // Setup prepares the peer for testing.
 func (p *PubSubPeer) Setup() {
-	publisherFn := func() {
+	p.pipe = p.conn.Pipeline()
+
+	// Flush the pipeline after this many messages have been put into it
+	const msgFlushCount = 50_000
+
+	// helper function to clear the redis pipeline
+	flushPipe := func() {
+		_, err := p.pipe.Exec(context.Background())
+		if err != nil {
+			p.errors <- err
+		}
+	}
+
+	go func() {
+		msgs := 0
 		for {
 			select {
 			case msg := <-p.send:
-				err := p.conn.Publish(context.Background(), channelKey, msg).Err()
+				err := p.pipe.Publish(context.Background(), channelKey, msg).Err()
 				if err != nil {
 					fmt.Println("Failed to publish", err)
 					p.errors <- err
 				}
+				msgs = (msgs + 1) % msgFlushCount
+				if msgs == 0 {
+					go flushPipe()
+				}
 			case <-p.done:
-				p.done <- true // signal next peer to stop
 				return
 			}
 		}
-	}
-
-	for i := 0; i < p.conn.Options().PoolSize; i++ {
-		go publisherFn()
-	}
+	}()
 }
 
 // Teardown performs any cleanup logic that needs to be performed after the

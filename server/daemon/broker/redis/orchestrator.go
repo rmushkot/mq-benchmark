@@ -21,7 +21,8 @@ type Broker struct {
 // Start will start the message broker and prepare it for testing.
 func (b *Broker) Start(host, port string) (interface{}, error) {
 	cmd := exec.Command("docker", "run", "-d", "-p",
-		fmt.Sprintf("%d:%d", redisPort, redisPort), redisDockerImg)
+		fmt.Sprintf("%d:%d", redisPort, redisPort), redisDockerImg,
+	)
 	containerID, err := cmd.Output()
 	if err != nil {
 		log.Printf("Failed to start container %s: %s", redisDockerImg, err.Error())
