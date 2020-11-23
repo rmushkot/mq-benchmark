@@ -4,11 +4,14 @@ import (
 	"context"
 	"fmt"
 
+	"github.com/rmushkot/mq-benchmark/server/daemon/broker"
+
 	"github.com/apache/pulsar-client-go/pulsar"
 )
 
 var (
-	topic = "topic" //broker.GenerateName()
+	topic = broker.GenerateName()
+	name  = broker.GenerateName()
 )
 
 // Peer implements the peer interface for pulsar.
@@ -51,7 +54,7 @@ func NewPeer(host string) (*Peer, error) {
 func (n *Peer) Subscribe() error {
 	consumer, err := n.conn.Subscribe(pulsar.ConsumerOptions{
 		Topic:            topic,
-		SubscriptionName: "my-sub",
+		SubscriptionName: name,
 		Type:             pulsar.Shared,
 	})
 	n.consumer = consumer
