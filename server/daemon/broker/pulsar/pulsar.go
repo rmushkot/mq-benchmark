@@ -124,7 +124,7 @@ func (n *Peer) Teardown() {
 		n.producer.Close()
 	}
 	if n.consumer != nil {
-		n.consumer.Unsubscribe()
+		// n.consumer.Unsubscribe()
 		n.consumer.Close()
 	}
 }
