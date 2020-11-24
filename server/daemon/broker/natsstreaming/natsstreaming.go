@@ -13,7 +13,7 @@ import (
 var (
 	subject   = broker.GenerateName()
 	clusterID = "test-cluster"
-	clientID  = "stan-bench"
+	clientID  = broker.GenerateName()
 	// Maximum bytes we will get behind before we start slowing down publishing.
 	maxBytesBehind uint64 = 1024 * 1024 // 1MB
 
@@ -46,7 +46,7 @@ func NewPeer(host string) (*Peer, error) {
 	// We want to be alerted if we get disconnected, this will be due to Slow
 	// Consumer.
 	conn.Opts.AllowReconnect = false
-	sc, err := stan.Connect(clusterID, broker.GenerateName(), stan.NatsConn(conn))
+	sc, err := stan.Connect(clusterID, broker.GenerateName(), stan.MaxPubAcksInflight(10000), stan.NatsConn(conn))
 	if err != nil {
 		return nil, err
 	}
