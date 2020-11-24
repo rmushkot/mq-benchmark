@@ -3,6 +3,7 @@ package pulsar
 import (
 	"context"
 	"fmt"
+	"time"
 
 	"github.com/apache/pulsar-client-go/pulsar"
 	"github.com/rmushkot/mq-benchmark/server/daemon/broker"
@@ -10,6 +11,7 @@ import (
 
 var (
 	topic = broker.GenerateName()
+	name  = broker.GenerateName()
 )
 
 // Peer implements the peer interface for pulsar.
@@ -32,11 +34,11 @@ func NewPeer(host string) (*Peer, error) {
 		return nil, err
 	}
 	producer, err := conn.CreateProducer(pulsar.ProducerOptions{
-		Topic: topic,
-		// BatchingMaxPublishDelay: 30 * time.Millisecond,
+		Topic:                   topic,
+		BatchingMaxPublishDelay: 1 * time.Millisecond,
 		// BatchingMaxMessages:     50000,
-		// BatchingMaxSize:         5 * 1000,
-		// MaxPendingMessages: 10000,
+		BatchingMaxSize:    128 * 1024,
+		MaxPendingMessages: 1000,
 	})
 
 	if err != nil {
@@ -46,7 +48,6 @@ func NewPeer(host string) (*Peer, error) {
 	return &Peer{
 		conn:     conn,
 		producer: producer,
-		consumer: nil,
 		send:     make(chan []byte),
 		errors:   make(chan error, 1),
 		done:     make(chan bool),
@@ -57,7 +58,7 @@ func NewPeer(host string) (*Peer, error) {
 func (n *Peer) Subscribe() error {
 	consumer, err := n.conn.Subscribe(pulsar.ConsumerOptions{
 		Topic:            topic,
-		SubscriptionName: "my-sub",
+		SubscriptionName: name,
 		Type:             pulsar.Shared,
 		// ReceiverQueueSize: 10000,
 	})
@@ -68,9 +69,12 @@ func (n *Peer) Subscribe() error {
 // Recv returns a single message consumed by the peer. Subscribe must be called
 // before this. It returns an error if the receive failed.
 func (n *Peer) Recv() ([]byte, error) {
-	msg, err := n.consumer.Receive(context.Background())
+	msg, err := <-n.consumer.Chan()
+	if !err {
+		return nil, fmt.Errorf("Message Consume error")
+	}
 	n.consumer.Ack(msg)
-	return msg.Payload(), err
+	return msg.Payload(), nil
 }
 
 // Send returns a channel on which messages can be sent for publishing.

@@ -2,7 +2,6 @@ package nats
 
 import (
 	"fmt"
-	"time"
 
 	"github.com/nats-io/nats.go"
 	"github.com/rmushkot/mq-benchmark/server/daemon/broker"
@@ -10,15 +9,6 @@ import (
 
 var (
 	subject = broker.GenerateName()
-
-	// Maximum bytes we will get behind before we start slowing down publishing.
-	maxBytesBehind uint64 = 1024 * 1024 * 2 // 1MB
-
-	// Maximum msgs we will get behind before we start slowing down publishing.
-	maxMsgsBehind uint64 = 100000 // 64k
-
-	// Time to delay publishing when we are behind.
-	delay = 0 * time.Millisecond
 )
 
 // Peer implements the peer interface for NATS.
@@ -90,7 +80,7 @@ func (n *Peer) Setup() {
 			select {
 			case msg := <-n.send:
 				go func() {
-					if err := n.sendMessage(msg); err != nil {
+					if err := n.conn.Publish(subject, msg); err != nil {
 						n.errors <- err
 					}
 				}()
@@ -101,22 +91,6 @@ func (n *Peer) Setup() {
 		}
 
 	}()
-}
-
-func (n *Peer) sendMessage(message []byte) error {
-	// Check if we are behind by >= 1MB bytes.
-	// bytesDeltaOver := n.conn.OutBytes-n.conn.InBytes >= maxBytesBehind
-
-	// // Check if we are behind by >= 65k msgs.
-	// msgsDeltaOver := n.conn.OutMsgs-n.conn.InMsgs >= maxMsgsBehind
-
-	// // If we are behind on either condition, sleep a bit to catch up receiver.
-	// if bytesDeltaOver || msgsDeltaOver {
-	// 	// fmt.Println(bytesDeltaOver, msgsDeltaOver)
-	// 	time.Sleep(delay)
-	// }
-
-	return n.conn.Publish(subject, message)
 }
 
 // Teardown performs any cleanup logic that needs to be performed after the

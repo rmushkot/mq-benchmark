@@ -99,9 +99,11 @@ func (n *Peer) Setup() {
 		for {
 			select {
 			case msg := <-n.send:
-				if err := n.sendMessage(msg); err != nil {
-					n.errors <- err
-				}
+				go func() {
+					if err := n.sendMessage(msg); err != nil {
+						n.errors <- err
+					}
+				}()
 			case <-n.done:
 				return
 			}
@@ -110,21 +112,9 @@ func (n *Peer) Setup() {
 }
 
 func (n *Peer) sendMessage(message []byte) error {
-	// Check if we are behind by >= 1MB bytes.
-	bytesDeltaOver := n.conn.OutBytes-n.conn.InBytes >= maxBytesBehind
-
-	// Check if we are behind by >= 65k msgs.
-	msgsDeltaOver := n.conn.OutMsgs-n.conn.InMsgs >= maxMsgsBehind
-
-	// If we are behind on either condition, sleep a bit to catch up receiver.
-	if bytesDeltaOver || msgsDeltaOver {
-		time.Sleep(delay)
-	}
 	ackHandler := func(ackedNuid string, err error) {
 		if err != nil {
 			log.Printf("Warning: error publishing msg id %s: %v\n", ackedNuid, err.Error())
-		} else {
-			return
 		}
 	}
 	_, err := n.sconn.PublishAsync(subject, message, ackHandler)

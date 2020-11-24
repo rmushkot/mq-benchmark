@@ -12,7 +12,7 @@ var (
 
 	// bufferSize is the number of messages we try to publish at a time to
 	// increase throughput. TODO: this might need tweaking.
-	bufferSize = 500
+	bufferSize = 5000
 )
 
 // Peer implements the peer interface for NSQ.
