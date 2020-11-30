@@ -36,9 +36,9 @@ func NewPeer(host string) (*Peer, error) {
 	producer, err := conn.CreateProducer(pulsar.ProducerOptions{
 		Topic:                   topic,
 		BatchingMaxPublishDelay: 1 * time.Millisecond,
-		// BatchingMaxMessages:     50000,
-		BatchingMaxSize:    128 * 1024,
-		MaxPendingMessages: 1000,
+		BatchingMaxMessages:     5000,
+		BatchingMaxSize:         128 * 1024,
+		MaxPendingMessages:      1000,
 	})
 
 	if err != nil {
@@ -98,16 +98,16 @@ func (n *Peer) Setup() {
 		for {
 			select {
 			case msg := <-n.send:
-				go func() {
-					n.producer.SendAsync(context.Background(), &pulsar.ProducerMessage{
-						Payload: msg,
-					}, func(id pulsar.MessageID, message *pulsar.ProducerMessage, err error) {
-						if err != nil {
-							fmt.Println("Failed to publish", err)
-							n.errors <- err
-						}
-					})
-				}()
+				// go func() {
+				n.producer.SendAsync(context.Background(), &pulsar.ProducerMessage{
+					Payload: msg,
+				}, func(id pulsar.MessageID, message *pulsar.ProducerMessage, err error) {
+					if err != nil {
+						fmt.Println("Failed to publish", err)
+						n.errors <- err
+					}
+				})
+				// }()
 			case <-n.done:
 				return
 			}
