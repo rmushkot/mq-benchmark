@@ -13,7 +13,6 @@ const (
 	dataPath      = "/mq-benchmark/results/data/pulsar"
 	pulsarCommand = `docker run -d \
 						-p %s:%s \
-						-v %s \
 						%s \
 						bin/pulsar standalone`
 )
@@ -25,7 +24,7 @@ type Broker struct {
 
 // Start will start the message broker and prepare it for testing.
 func (n *Broker) Start(host, port string) (interface{}, error) {
-	cmd := fmt.Sprintf(pulsarCommand, internalPort, internalPort, dataPath, pulsard)
+	cmd := fmt.Sprintf(pulsarCommand, internalPort, internalPort, pulsard)
 	containerID, err := exec.Command("/bin/sh", "-c", cmd).Output()
 	if err != nil {
 		log.Printf("Failed to start container %s: %s", pulsard, err.Error())
