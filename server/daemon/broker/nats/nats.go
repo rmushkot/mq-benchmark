@@ -79,11 +79,11 @@ func (n *Peer) Setup() {
 		for {
 			select {
 			case msg := <-n.send:
-				go func() {
+				// go func() {
 					if err := n.conn.Publish(subject, msg); err != nil {
 						n.errors <- err
 					}
-				}()
+				// }()
 			case <-n.done:
 				n.conn.Flush()
 				return

@@ -1,8 +1,6 @@
 package kafka
 
 import (
-	"fmt"
-
 	"github.com/Shopify/sarama"
 	"github.com/rmushkot/mq-benchmark/server/daemon/broker"
 )
@@ -23,7 +21,10 @@ type Peer struct {
 func NewPeer(host string) (*Peer, error) {
 	host = host + ":9092" //localhost:5000 into 9092
 	config := sarama.NewConfig()
-	fmt.Println(host)
+	config.Producer.Flush.MaxMessages = 0
+	config.Producer.RequiredAcks = sarama.RequiredAcks(0)
+	// config.Producer.Flush.Messages = 1
+	config.Consumer.Fetch.Min = 10
 	client, err := sarama.NewClient([]string{host}, config)
 	if err != nil {
 		return nil, err
@@ -109,7 +110,7 @@ func (k *Peer) sendMessage(message []byte) error {
 // Teardown performs any cleanup logic that needs to be performed after the
 // test is complete.
 func (k *Peer) Teardown() {
-	k.producer.Close()
+	k.client.Close()
 	if k.consumer != nil {
 		k.consumer.Close()
 	}

@@ -3,7 +3,6 @@ package natsstreaming
 import (
 	"fmt"
 	"log"
-	"time"
 
 	"github.com/nats-io/nats.go"
 	"github.com/nats-io/stan.go"
@@ -14,14 +13,6 @@ var (
 	subject   = broker.GenerateName()
 	clusterID = "test-cluster"
 	clientID  = broker.GenerateName()
-	// Maximum bytes we will get behind before we start slowing down publishing.
-	maxBytesBehind uint64 = 1024 * 1024 // 1MB
-
-	// Maximum msgs we will get behind before we start slowing down publishing.
-	maxMsgsBehind uint64 = 65536 // 64k
-
-	// Time to delay publishing when we are behind.
-	delay = 0 * time.Millisecond
 )
 
 // Peer implements the peer interface for NATS.
@@ -46,7 +37,7 @@ func NewPeer(host string) (*Peer, error) {
 	// We want to be alerted if we get disconnected, this will be due to Slow
 	// Consumer.
 	conn.Opts.AllowReconnect = false
-	sc, err := stan.Connect(clusterID, broker.GenerateName(), stan.MaxPubAcksInflight(10000), stan.NatsConn(conn))
+	sc, err := stan.Connect(clusterID, broker.GenerateName(), stan.MaxPubAcksInflight(1000000), stan.NatsConn(conn))
 	if err != nil {
 		return nil, err
 	}
@@ -55,7 +46,7 @@ func NewPeer(host string) (*Peer, error) {
 		conn:     conn,
 		sconn:    sc,
 		sub:      nil,
-		messages: make(chan []byte, 100000),
+		messages: make(chan []byte),
 		send:     make(chan []byte),
 		errors:   make(chan error, 1),
 		done:     make(chan bool),
@@ -66,8 +57,9 @@ func NewPeer(host string) (*Peer, error) {
 func (n *Peer) Subscribe() error {
 	s, err := n.sconn.Subscribe(subject, func(message *stan.Msg) {
 		n.messages <- message.Data
-	})
+	}, stan.MaxInflight(1000000))
 	s.SetPendingLimits(-1, -1)
+	n.conn.Flush()
 	n.sub = s
 	return err
 }
@@ -99,12 +91,13 @@ func (n *Peer) Setup() {
 		for {
 			select {
 			case msg := <-n.send:
-				go func() {
+				// go func() {
 					if err := n.sendMessage(msg); err != nil {
 						n.errors <- err
 					}
-				}()
+				// }()
 			case <-n.done:
+				n.conn.Flush()
 				return
 			}
 		}
