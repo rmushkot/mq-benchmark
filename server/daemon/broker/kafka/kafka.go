@@ -4,11 +4,14 @@ import (
 	"context"
 	"fmt"
 	"log"
+	// "time"
 
 	kafka "github.com/segmentio/kafka-go"
+	"github.com/rmushkot/mq-benchmark/server/daemon/broker"
+
 )
 
-var topic = "myTopic" //broker.GenerateName()
+var topic = broker.GenerateName() 
 
 // Peer implements the peer interface for Kafka.
 type Peer struct {
@@ -22,12 +25,20 @@ type Peer struct {
 // NewPeer creates and returns a new Peer for communicating with Kafka.
 func NewPeer(host string) (*Peer, error) {
 	hostPort := fmt.Sprintf("%s:9092", host)
+
+	// to create topics when auto.create.topics.enable='true'
+	// conn, err := kafka.DialLeader(context.Background(), "tcp", hostPort, topic, 0)
+	// if err != nil {
+	// 	return nil, err
+	// }
+	// conn.Close()
+
 	writer := kafka.NewWriter(kafka.WriterConfig{
 		Brokers:       []string{hostPort},
 		Topic:         topic,
 		QueueCapacity: 100,
-		BatchSize:     100,
-		BatchBytes:    1048576,
+		BatchSize:     1000, // default 100
+		BatchBytes:    100000,
 		RequiredAcks:  0,
 		Async:         true,
 	})
@@ -36,9 +47,11 @@ func NewPeer(host string) (*Peer, error) {
 		Brokers: []string{hostPort},
 		Topic:   topic,
 		// Partition:     0,
-		QueueCapacity: 100,
-		MinBytes:      10e3,
-		MaxBytes:      10e6,
+		// GroupID: "group1",
+		QueueCapacity: 100, // default 100
+		MinBytes:      10, // 10 KB
+		MaxBytes:      10e6, // 10 MB
+		// CommitInterval: time.Second,
 	})
 
 	return &Peer{
