@@ -8,8 +8,6 @@ import (
 	"github.com/rmushkot/mq-benchmark/server/daemon/broker"
 )
 
-const redisPort = 6379
-
 var channelKey = broker.GenerateName()
 
 // PubSubPeer implements the peer interface for Redis Pub/Sub
@@ -27,9 +25,7 @@ type PubSubPeer struct {
 // NewPeer creates a peer used for communicating with Redis
 func NewPubSubPeer(host string) (*PubSubPeer, error) {
 	p := PubSubPeer{}
-	p.conn = redis.NewClient(&redis.Options{
-		Addr: fmt.Sprintf("%s:%d", host, redisPort),
-	})
+	p.conn = newClient(host)
 	p.send = make(chan []byte)
 	p.errors = make(chan error)
 	p.done = make(chan bool)

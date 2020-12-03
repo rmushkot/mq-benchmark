@@ -18,7 +18,7 @@ const dataKey = "data"
 type StreamsPeer struct {
 	conn     *redis.Client
 	pipe     redis.Pipeliner
-	recvMsgs chan redis.XMessage
+	recvMsgs chan []byte
 	recvErrs chan error
 	lastID   string // last ID read from the Stream in order to not miss any messages
 	send     chan []byte
@@ -28,9 +28,7 @@ type StreamsPeer struct {
 
 func NewStreamsPeer(host string) (*StreamsPeer, error) {
 	s := StreamsPeer{}
-	s.conn = redis.NewClient(&redis.Options{
-		Addr: fmt.Sprintf("%s:%d", host, redisPort),
-	})
+	s.conn = newClient(host)
 	s.send = make(chan []byte)
 	s.errors = make(chan error)
 	s.done = make(chan bool)
@@ -39,31 +37,44 @@ func NewStreamsPeer(host string) (*StreamsPeer, error) {
 
 // Subscribe prepares the peer to consume messages.
 func (s *StreamsPeer) Subscribe() error {
+	s.recvMsgs = make(chan []byte)
+	s.recvErrs = make(chan error)
 	// initial ID of 0 means that we want to start receiving messages from the beginning
 	// of the stream's history.
 	// this will probably not be the cause for other Stream clients, but for the
 	// benchmark tool the stream will be empty at the start and reset each time its run
 	s.lastID = "0"
+	go func() {
+		for {
+			args := redis.XReadArgs{
+				Streams: []string{streamKey, s.lastID},
+				Count:   1000,
+				Block:   time.Duration(0),
+			}
+			res, err := s.conn.XRead(context.Background(), &args).Result()
+			if err != nil {
+				s.recvErrs <- err
+			}
+			for _, msg := range res[0].Messages {
+				// set ID so that we will get every message sent by the producers
+				s.lastID = msg.ID
+				data := []byte(msg.Values[dataKey].(string))
+				s.recvMsgs <- data
+			}
+		}
+	}()
 	return nil
 }
 
 // Recv returns a single message consumed by the peer. Subscribe must be
 // called before this. It returns an error if the receive failed.
 func (s *StreamsPeer) Recv() ([]byte, error) {
-	args := redis.XReadArgs{
-		Streams: []string{streamKey, s.lastID},
-		Count:   1,
-		Block:   time.Duration(0),
-	}
-	res, err := s.conn.XRead(context.Background(), &args).Result()
-	if err != nil {
+	select {
+	case data := <-s.recvMsgs:
+		return data, nil
+	case err := <-s.recvErrs:
 		return nil, err
 	}
-	msg := res[0].Messages[0]
-	// set ID so that we will get every message sent by the producers
-	s.lastID = msg.ID
-	data := []byte(msg.Values[dataKey].(string))
-	return data, nil
 }
 
 // Send returns a channel on which messages can be sent for publishing.
@@ -106,7 +117,7 @@ func (s *StreamsPeer) Setup() {
 					ID:     "*",
 					Values: map[string]interface{}{dataKey: msg},
 				}
-				err := s.conn.XAdd(context.Background(), &args).Err()
+				err := s.pipe.XAdd(context.Background(), &args).Err()
 				if err != nil {
 					fmt.Println("Failed to publish", err)
 					s.errors <- err

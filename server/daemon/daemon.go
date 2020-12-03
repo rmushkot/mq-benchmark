@@ -220,8 +220,7 @@ func (d *Daemon) processBrokerStart(broker, host, port string) (interface{}, err
 		d.broker = &activemq.Broker{}
 	case RabbitMQ:
 		d.broker = &rabbitmq.Broker{}
-	case RedisPubSub:
-	case RedisStreams:
+	case RedisPubSub, RedisStreams:
 		d.broker = &redis.Broker{}
 	case NSQ:
 		d.broker = &nsq.Broker{}
