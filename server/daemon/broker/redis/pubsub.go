@@ -25,7 +25,7 @@ type PubSubPeer struct {
 }
 
 // NewPeer creates a peer used for communicating with Redis
-func NewPeer(host string) (*PubSubPeer, error) {
+func NewPubSubPeer(host string) (*PubSubPeer, error) {
 	p := PubSubPeer{}
 	p.conn = redis.NewClient(&redis.Options{
 		Addr: fmt.Sprintf("%s:%d", host, redisPort),

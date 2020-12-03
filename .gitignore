@@ -1,3 +1,4 @@
 # binaries from go build
 client/client
 server/server
+**/*.swp

@@ -42,7 +42,8 @@ const (
 	ActiveMQ      = "activemq"
 	RabbitMQ      = "rabbitmq"
 	NSQ           = "nsq"
-	Redis         = "redis"
+	RedisPubSub   = "redispubsub"
+	RedisStreams  = "redisstreams"
 	NATSStreaming = "natsstreaming"
 	Pulsar        = "pulsar"
 )
@@ -219,7 +220,8 @@ func (d *Daemon) processBrokerStart(broker, host, port string) (interface{}, err
 		d.broker = &activemq.Broker{}
 	case RabbitMQ:
 		d.broker = &rabbitmq.Broker{}
-	case Redis:
+	case RedisPubSub:
+	case RedisStreams:
 		d.broker = &redis.Broker{}
 	case NSQ:
 		d.broker = &nsq.Broker{}
@@ -347,8 +349,10 @@ func (d *Daemon) newPeer(broker, host string) (peer, error) {
 		return activemq.NewPeer(host)
 	case RabbitMQ:
 		return amqp.NewPeer(host)
-	case Redis:
-		return redis.NewPeer(host)
+	case RedisPubSub:
+		return redis.NewPubSubPeer(host)
+	case RedisStreams:
+		return redis.NewStreamsPeer(host)
 	case NSQ:
 		return nsq.NewPeer(host)
 	case NATSStreaming:
