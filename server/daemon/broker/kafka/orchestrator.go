@@ -9,9 +9,9 @@ const (
 							-e ALLOW_ANONYMOUS_LOGIN=yes \
 							bitnami/zookeeper:latest`
 	zookeeperPort = "2181"
-	kafka         = "bitnami/kafka"
-	kafkaPort     = "9092"
-	jmxPort       = "7203"
+	// kafka         = "bitnami/kafka"
+	kafkaPort = "9092"
+	jmxPort   = "7203"
 	// TODO: Use --link.
 	kafkaCmd = `docker run -d --name kafka-server \
 					-p 127.0.0.1:9092:9092 \

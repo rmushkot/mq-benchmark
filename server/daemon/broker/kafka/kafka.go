@@ -1,57 +1,52 @@
 package kafka
 
 import (
-	"github.com/Shopify/sarama"
-	"github.com/rmushkot/mq-benchmark/server/daemon/broker"
+	"context"
+	"fmt"
+	"log"
+
+	kafka "github.com/segmentio/kafka-go"
 )
 
-var topic = broker.GenerateName()
+var topic = "myTopic" //broker.GenerateName()
 
 // Peer implements the peer interface for Kafka.
 type Peer struct {
-	client   sarama.Client
-	producer sarama.AsyncProducer
-	consumer sarama.PartitionConsumer
-	send     chan []byte
-	errors   chan error
-	done     chan bool
+	writer *kafka.Writer
+	reader *kafka.Reader
+	send   chan []byte
+	errors chan error
+	done   chan bool
 }
 
 // NewPeer creates and returns a new Peer for communicating with Kafka.
 func NewPeer(host string) (*Peer, error) {
-	host = host + ":9092" //localhost:5000 into 9092
-	config := sarama.NewConfig()
-	config.Producer.Flush.MaxMessages = 0
-	config.Producer.RequiredAcks = sarama.RequiredAcks(0)
-	// config.Producer.Flush.Messages = 1
-	config.Consumer.Fetch.Min = 10
-	client, err := sarama.NewClient([]string{host}, config)
-	if err != nil {
-		return nil, err
-	}
+	hostPort := fmt.Sprintf("%s:9092", host)
+	writer := kafka.NewWriter(kafka.WriterConfig{
+		Brokers:       []string{hostPort},
+		Topic:         topic,
+		QueueCapacity: 100,
+		BatchSize:     100,
+		BatchBytes:    1048576,
+		RequiredAcks:  0,
+		Async:         true,
+	})
 
-	producer, err := sarama.NewAsyncProducer([]string{host}, config)
-	if err != nil {
-		return nil, err
-	}
-
-	consumer, err := sarama.NewConsumer([]string{host}, config)
-	if err != nil {
-		return nil, err
-	}
-
-	partitionConsumer, err := consumer.ConsumePartition(topic, 0, sarama.OffsetNewest)
-	if err != nil {
-		return nil, err
-	}
+	reader := kafka.NewReader(kafka.ReaderConfig{
+		Brokers: []string{hostPort},
+		Topic:   topic,
+		// Partition:     0,
+		QueueCapacity: 100,
+		MinBytes:      10e3,
+		MaxBytes:      10e6,
+	})
 
 	return &Peer{
-		client:   client,
-		producer: producer,
-		consumer: partitionConsumer,
-		send:     make(chan []byte),
-		errors:   make(chan error, 1),
-		done:     make(chan bool),
+		writer: writer,
+		reader: reader,
+		send:   make(chan []byte),
+		errors: make(chan error, 1),
+		done:   make(chan bool),
 	}, nil
 }
 
@@ -63,7 +58,10 @@ func (k *Peer) Subscribe() error {
 // Recv returns a single message consumed by the peer. Subscribe must be called
 // before this. It returns an error if the receive failed.
 func (k *Peer) Recv() ([]byte, error) {
-	msg := <-k.consumer.Messages()
+	msg, err := k.reader.ReadMessage(context.Background())
+	if err != nil {
+		return nil, err
+	}
 	return msg.Value, nil
 }
 
@@ -88,7 +86,9 @@ func (k *Peer) Setup() {
 		for {
 			select {
 			case msg := <-k.send:
-				if err := k.sendMessage(msg); err != nil {
+				if err := k.writer.WriteMessages(context.Background(),
+					kafka.Message{
+						Value: msg}); err != nil {
 					k.errors <- err
 				}
 			case <-k.done:
@@ -98,23 +98,13 @@ func (k *Peer) Setup() {
 	}()
 }
 
-func (k *Peer) sendMessage(message []byte) error {
-	select {
-	case k.producer.Input() <- &sarama.ProducerMessage{Topic: topic, Key: nil, Value: sarama.ByteEncoder(message)}:
-		return nil
-	case err := <-k.producer.Errors():
-		return err.Err
-	}
-}
-
 // Teardown performs any cleanup logic that needs to be performed after the
 // test is complete.
 func (k *Peer) Teardown() {
-	k.client.Close()
-	if k.consumer != nil {
-		k.consumer.Close()
+	if err := k.reader.Close(); err != nil {
+		log.Fatal("failed to close reader:", err)
 	}
-	if k.producer != nil {
-		k.producer.Close()
+	if err := k.writer.Close(); err != nil {
+		log.Fatal("failed to close reader:", err)
 	}
 }
