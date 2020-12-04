@@ -17,6 +17,7 @@ var topic = broker.GenerateName()
 type Peer struct {
 	writer *kafka.Writer
 	reader *kafka.Reader
+	host string
 	send   chan []byte
 	errors chan error
 	done   chan bool
@@ -25,13 +26,8 @@ type Peer struct {
 // NewPeer creates and returns a new Peer for communicating with Kafka.
 func NewPeer(host string) (*Peer, error) {
 	hostPort := fmt.Sprintf("%s:9092", host)
-
 	// to create topics when auto.create.topics.enable='true'
-	// conn, err := kafka.DialLeader(context.Background(), "tcp", hostPort, topic, 0)
-	// if err != nil {
-	// 	return nil, err
-	// }
-	// conn.Close()
+	
 
 	writer := kafka.NewWriter(kafka.WriterConfig{
 		Brokers:       []string{hostPort},
@@ -39,7 +35,7 @@ func NewPeer(host string) (*Peer, error) {
 		QueueCapacity: 100,
 		BatchSize:     1000, // default 100
 		BatchBytes:    100000,
-		RequiredAcks:  0,
+		RequiredAcks:  1,
 		Async:         true,
 	})
 
@@ -49,7 +45,7 @@ func NewPeer(host string) (*Peer, error) {
 		// Partition:     0,
 		// GroupID: "group1",
 		QueueCapacity: 100, // default 100
-		MinBytes:      10, // 10 KB
+		MinBytes:      10e4, // 10 KB
 		MaxBytes:      10e6, // 10 MB
 		// CommitInterval: time.Second,
 	})
@@ -57,6 +53,7 @@ func NewPeer(host string) (*Peer, error) {
 	return &Peer{
 		writer: writer,
 		reader: reader,
+		host: hostPort,
 		send:   make(chan []byte),
 		errors: make(chan error, 1),
 		done:   make(chan bool),
@@ -65,7 +62,10 @@ func NewPeer(host string) (*Peer, error) {
 
 // Subscribe prepares the peer to consume messages.
 func (k *Peer) Subscribe() error {
-	return nil
+	// This ensures that a topic is created.
+	conn, err := kafka.DialLeader(context.Background(), "tcp", k.host, topic, 0)
+	conn.Close()
+	return err
 }
 
 // Recv returns a single message consumed by the peer. Subscribe must be called
