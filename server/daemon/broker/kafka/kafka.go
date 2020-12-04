@@ -4,7 +4,7 @@ import (
 	"context"
 	"fmt"
 	"log"
-	// "time"
+	"time"
 
 	kafka "github.com/segmentio/kafka-go"
 	"github.com/rmushkot/mq-benchmark/server/daemon/broker"
@@ -48,6 +48,7 @@ func NewPeer(host string) (*Peer, error) {
 		MinBytes:      10e4, // 10 KB
 		MaxBytes:      10e6, // 10 MB
 		// CommitInterval: time.Second,
+		ReadBackoffMin: 5 * time.Millisecond,
 	})
 
 	return &Peer{
