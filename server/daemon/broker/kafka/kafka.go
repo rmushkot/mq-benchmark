@@ -44,7 +44,7 @@ func NewPeer(host string) (*Peer, error) {
 		Topic:   topic,
 		// Partition:     0,
 		// GroupID: "group1",
-		QueueCapacity: 100, // default 100
+		QueueCapacity: 1000, // default 100
 		MinBytes:      10e4, // 10 KB
 		MaxBytes:      10e6, // 10 MB
 		// CommitInterval: time.Second,
