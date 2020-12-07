@@ -3,6 +3,7 @@ package redis
 import (
 	"context"
 	"fmt"
+	"log"
 	"time"
 
 	"github.com/go-redis/redis/v8"
@@ -11,7 +12,10 @@ import (
 
 var streamKey = broker.GenerateName()
 
-const dataKey = "data"
+const (
+	dataKey          = "data"
+	streamXReadCount = 5_000
+)
 
 // StreamsPeer implements the peer interface using Redis Streams
 // for more info on Redis Streams see: https://redis.io/topics/streams-intro
@@ -37,7 +41,7 @@ func NewStreamsPeer(host string) (*StreamsPeer, error) {
 
 // Subscribe prepares the peer to consume messages.
 func (s *StreamsPeer) Subscribe() error {
-	s.recvMsgs = make(chan []byte)
+	s.recvMsgs = make(chan []byte, streamXReadCount)
 	s.recvErrs = make(chan error)
 	// initial ID of 0 means that we want to start receiving messages from the beginning
 	// of the stream's history.
@@ -48,13 +52,19 @@ func (s *StreamsPeer) Subscribe() error {
 		for {
 			args := redis.XReadArgs{
 				Streams: []string{streamKey, s.lastID},
-				Count:   1000,
+				Count:   streamXReadCount,
 				Block:   time.Duration(0),
 			}
 			res, err := s.conn.XRead(context.Background(), &args).Result()
+
 			if err != nil {
+				if err == redis.ErrClosed {
+					log.Println("Consumer: Exiting XREAD loop")
+					return
+				}
 				s.recvErrs <- err
 			}
+
 			for _, msg := range res[0].Messages {
 				// set ID so that we will get every message sent by the producers
 				s.lastID = msg.ID
