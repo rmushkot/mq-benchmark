@@ -35,7 +35,7 @@ func NewPeer(host string) (*Peer, error) {
 		QueueCapacity: 100,
 		BatchSize:     1000, // default 100
 		BatchBytes:    100000,
-		RequiredAcks:  1,
+		RequiredAcks:  0,
 		Async:         true,
 	})
 
@@ -44,11 +44,13 @@ func NewPeer(host string) (*Peer, error) {
 		Topic:   topic,
 		// Partition:     0,
 		// GroupID: "group1",
-		QueueCapacity: 1000, // default 100
+		QueueCapacity: 100, // default 100
 		MinBytes:      10e4, // 10 KB
 		MaxBytes:      10e6, // 10 MB
 		// CommitInterval: time.Second,
 		ReadBackoffMin: 5 * time.Millisecond,
+		MaxWait:   50 * time.Millisecond,
+
 	})
 
 	return &Peer{
